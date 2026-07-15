@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Beauty Intelligence Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FFFFFF;--text:#111111;--text2:#666666;--text3:#999999;
+  --border:#E8E8E8;--accent:#111111;--card-bg:#FAFAFA;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+/* ═══ NAV ═══ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:48px}
+.nav-brand{font-weight:800;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.nav-tabs{display:flex;gap:0}
+.nav-tabs a{font-size:.80rem;font-weight:600;color:var(--text3);text-decoration:none;padding:13px 11px;border-bottom:2px solid transparent;transition:all .2s}
+.nav-tabs a:hover{color:var(--text)}
+.nav-tabs a.active{color:var(--text);border-bottom-color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.date-selector{display:flex;align-items:center;gap:4px;font-size:.78rem;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 9px;border-radius:6px;border:1px solid var(--border);transition:all .2s;position:relative}
+.date-selector:hover{border-color:var(--text);color:var(--text)}
+.date-selector .arrow{font-size:.5rem;color:var(--text3)}
+.date-dropdown{position:absolute;top:36px;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08);min-width:140px;display:none;z-index:2000;overflow:hidden;max-height:280px;overflow-y:auto}
+.date-dropdown.open{display:block}
+.date-dropdown .dd-item{padding:6px 12px;font-size:.78rem;font-weight:500;cursor:pointer;transition:background .15s}
+.date-dropdown .dd-item:hover{background:#F5F5F5}
+.date-dropdown .dd-item.active{background:var(--text);color:#fff;font-weight:700}
+.nav-search{display:flex;align-items:center;gap:6px;background:#F2F2F2;border-radius:8px;padding:5px 10px;width:160px;transition:width .3s}
+.nav-search:focus-within{width:200px}
+.nav-search svg{width:13px;height:13px;color:var(--text3);flex-shrink:0}
+.nav-search input{border:none;outline:none;font-size:.82rem;font-family:inherit;color:var(--text);background:transparent;width:100%;font-weight:500}
+.nav-search input::placeholder{color:var(--text3)}
+
+/* ═══ HERO HEADER ═══ */
+.hero-header{margin-top:48px;padding:40px 24px 32px;text-align:center}
+.hero-header .hero-title{font-size:2.2rem;font-weight:900;letter-spacing:.04em;color:#000}
+.hero-header .hero-meta{font-size:.75rem;color:var(--text3);margin-top:4px;font-weight:500;letter-spacing:.02em}
+
+/* ═══ CAROUSEL ═══ */
+.carousel-section{padding:14px 20px 0;max-width:860px;margin-left:auto;margin-right:auto}
+.carousel-wrapper{position:relative;display:flex;align-items:stretch}
+
+.carousel-track{flex:1;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
+
+.carousel-slide{display:none;width:100%}
+.carousel-slide.active{display:flex}
+
+/* Left image area */
+.slide-img{flex:0 0 300px;position:relative;overflow:hidden;background:#F5F5F5}
+.slide-img .img-bg{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.slide-img .emoji{font-size:3.6rem}
+.slide-img .img-label{font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(0,0,0,.4)}
+.slide-img .img-date{font-size:.66rem;color:rgba(0,0,0,.25);font-weight:500}
+.slide-accent-bar{position:absolute;top:0;left:0;right:0;height:3px;z-index:2}
+
+/* Right content area */
+.slide-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:420px;max-height:520px}
+.slide-head{display:flex;align-items:baseline;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.slide-head .sh-left{display:flex;align-items:baseline;gap:8px}
+.slide-head .sh-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.slide-head .sh-title{font-size:1.15rem;font-weight:800}
+.slide-head .sh-count{font-size:.65rem;color:var(--text3);font-weight:500}
+
+.slide-body{flex:1;overflow-y:auto;padding:2px 0}
+.slide-body::-webkit-scrollbar{width:3px}
+.slide-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.slide-body::-webkit-scrollbar-track{background:transparent}
+
+/* ═══ NAV ARROWS ═══ */
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.9);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:all .2s;color:var(--text)}
+.carousel-arrow:hover{border-color:var(--text);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.carousel-arrow.prev{left:-18px}
+.carousel-arrow.next{right:-18px}
+.carousel-arrow svg{width:16px;height:16px}
+
+/* ═══ DOTS ═══ */
+.carousel-dots{display:flex;justify-content:center;gap:6px;padding:12px 0 0}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s;border:none;padding:0}
+.carousel-dot.active{background:var(--text);transform:scale(1.3)}
+
+/* ═══ NEWS ITEMS ═══ */
+.news-item{padding:10px 20px;border-bottom:1px solid rgba(0,0,0,.04)}
+.news-item:last-child{border-bottom:none}
+.news-item.match{background:#FFFDE7}
+.ni-title{font-size:.88rem;font-weight:600;line-height:1.45;margin-bottom:3px;display:flex;align-items:baseline;gap:6px}
+.ni-title::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text3);flex-shrink:0;position:relative;top:-1px}
+.ni-summary{font-size:.76rem;color:var(--text2);line-height:1.5;margin-bottom:4px}
+.ni-judge{font-size:.74rem;color:var(--text);font-weight:500;line-height:1.45;margin-bottom:4px;padding:4px 8px;background:rgba(0,0,0,.03);border-radius:4px;border-left:2px solid var(--text)}
+.ni-judge::before{content:'💡 '}
+.ni-source{font-size:.66rem;color:var(--text3);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:2px}
+.ni-source:hover{text-decoration:underline;color:var(--text)}
+.ni-source::after{content:' →';font-size:.5rem}
+
+/* ═══ INSIGHT ITEMS ═══ */
+.insight-item{padding:10px 20px;border-bottom:1px solid rgba(0,0,0,.04)}
+.insight-item:last-child{border-bottom:none}
+.insight-item.match{background:#FFFDE7}
+.ii-label{font-size:.63rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.ii-text{font-size:.86rem;font-weight:600;line-height:1.55}
+.ii-text em{font-style:normal;font-weight:900;text-decoration:underline;text-decoration-color:var(--text3);text-underline-offset:2px}
+
+/* ═══ BRAND GRID ═══ */
+.brand-section{padding:22px 20px 36px;border-top:1px solid var(--border);margin-top:12px}
+.brand-head{text-align:center;margin-bottom:14px}
+.brand-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+.brand-title{font-size:1.15rem;font-weight:900}
+.brand-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;max-width:860px;margin:0 auto}
+.brand-card{border:1px solid var(--border);aspect-ratio:1/1;transition:all .2s;cursor:pointer;position:relative;background:#fff;border-radius:6px}
+.brand-card:hover{border-color:var(--text);transform:translateY(-1px)}
+.brand-card img{width:100%;height:100%;object-fit:contain;padding:7px;display:block}
+.brand-card .b-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.brand-card .b-en{font-size:.56rem;font-weight:800;letter-spacing:.04em;text-align:center;line-height:1.2}
+.brand-card .b-cn{font-size:.50rem;color:var(--text3);font-weight:500;text-align:center}
+
+.slide-report{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 20px;border-top:1px solid var(--border);flex-shrink:0;font-size:.78rem;font-weight:600;color:var(--text2);text-decoration:none;transition:all .2s}
+.slide-report:hover{color:var(--text);background:rgba(0,0,0,.02)}
+.slide-report svg{width:14px;height:14px}
+
+.footer{text-align:center;padding:14px;border-top:1px solid var(--border)}
+.footer p{font-size:.66rem;color:var(--text3);font-weight:500}
+.no-results{text-align:center;padding:40px 20px;color:var(--text3);font-size:.85rem}
+
+@media(max-width:900px){
+  .slide-img{flex:0 0 200px}
+  .brand-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:768px){
+  .nav{padding:0 12px;height:44px}
+  .nav-brand{font-size:.66rem}
+  .nav-tabs a{font-size:.58rem;padding:10px 5px}
+  .nav-search{width:100px}
+  .nav-search:focus-within{width:140px}
+  .date-header{padding:12px 10px 0}
+  .date-header .date-value{font-size:1.2rem}
+  .carousel-section{padding:10px 10px 0}
+  .carousel-slide.active{flex-direction:column}
+  .slide-img{flex:none;height:120px}
+  .slide-content{min-height:300px;max-height:400px}
+  .carousel-arrow.prev{left:-4px}
+  .carousel-arrow.next{right:-4px}
+  .brand-section{padding:14px 10px 26px}
+}
+
+/* ═══ FLASH NEWS ═══ */
+.flash-section{max-width:860px;margin:0 auto;padding:20px 20px 0}
+.flash-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.flash-label{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.flash-title{font-size:1.1rem;font-weight:800;color:var(--text)}
+.flash-date{font-size:.72rem;color:var(--text3);font-weight:500}
+.flash-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.flash-item{padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.05);border-right:1px solid rgba(0,0,0,.05);transition:background .15s}
+.flash-item:hover{background:#FAFAFA}
+.flash-item:nth-child(2n){border-right:none}
+.flash-item:nth-last-child(-n+2){border-bottom:none}
+.fi-tag{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:3px;margin-bottom:6px;text-transform:uppercase}
+.fi-tag.domestic{background:#F0F0F0;color:#333}
+.fi-tag.overseas{background:#E8F0FE;color:#1A73E8}
+.fi-tag.artist{background:#FEF0E8;color:#D84315}
+.fi-tag.ip{background:#F0F0E8;color:#5D4037}
+.fi-tag.policy{background:#E8FEF0;color:#1B5E20}
+.fi-title{font-size:.86rem;font-weight:700;line-height:1.4;margin-bottom:4px;color:var(--text)}
+.fi-summary{font-size:.74rem;color:var(--text2);line-height:1.5}
+@media(max-width:640px){
+  .flash-section{padding:14px 10px 0}
+  .flash-grid{grid-template-columns:1fr}
+  .flash-item{border-right:none!important}
+  .flash-item:nth-last-child(2){border-bottom:1px solid rgba(0,0,0,.05)}
+  .flash-item:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand" onclick="showDate(todayStr)">Beauty Intel</div>
+  <div class="nav-tabs" id="navTabs">
+    <a href="#" class="active" data-idx="0" onclick="goSlide(0,event)">日报</a>
+    <a href="#" data-idx="1" onclick="goSlide(1,event)">周报</a>
+    <a href="#" data-idx="2" onclick="goSlide(2,event)">上新</a>
+    <a href="#" data-idx="3" onclick="goSlide(3,event)">趋势</a>
+    <a href="#" data-idx="4" onclick="goSlide(4,event)">创意</a>
+    <a href="#" data-idx="5" onclick="goSlide(5,event)">破茧</a>
+  </div>
+  <div class="nav-right">
+    <div class="date-selector" id="dateSelector" onclick="toggleDateDropdown()">
+      <span id="dateSelectorText">今天</span>
+      <span class="arrow">▼</span>
+      <div class="date-dropdown" id="dateDropdown"></div>
+    </div>
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="navSearchInput" placeholder="搜索全部历史…" oninput="filterNews(this.value)">
+    </div>
+  </div>
+</nav>
+
+<div class="hero-header" id="heroHeader">
+  <div class="hero-title">Beauty News</div>
+  <div class="hero-meta" id="heroMeta"></div>
+</div>
+
+
+<div class="flash-section" id="flashSection">
+  <div class="flash-head">
+    <div>
+      <div class="flash-label">Flash Updates</div>
+      <div class="flash-title">本周行业快讯</div>
+    </div>
+    <div class="flash-date">2026.07.15 更新</div>
+  </div>
+  <div class="flash-grid">
+    <div class="flash-item">
+      <span class="fi-tag policy">头条</span>
+      <div class="fi-title">化妆品新原料新规今日正式施行：高风险功效原料从10类缩减为5类</div>
+      <div class="fi-summary">祛痘/抗皱/去屑/防脱发等不再按高风险管理，备案门槛大幅降低。杭州率先推出"优审快办"2日快速通道。成分创新加速期开启，利好自然堂喜默因等新原料功效延伸申报。</div>
+    </div>
+    <div class="flash-item">
+      <span class="fi-tag overseas">海外</span>
+      <div class="fi-title">迪奥花秘逆转面霜发布：首次揭晓长寿科学科研突破，"肌肤长寿罗盘"概念</div>
+      <div class="fi-summary">LVMH旗下迪奥加入长寿护肤赛道，联合19位科学家成立匿龄美妍科技委员会。欧莱雅/雅诗兰黛/LVMH三巨头均已锚定长寿科学叙事，高端抗老竞争全面升级。</div>
+    </div>
+    <div class="flash-item">
+      <span class="fi-tag artist">艺人</span>
+      <div class="fi-title">赵露思官宣个人美妆品牌ROSE AMIGO：定位"情绪护肤"，首款产品锁定颈膜</div>
+      <div class="fi-summary">赵露思持股90%自主创业，对标FAN BEAUTY（年营收18亿）。明星自创美妆品牌趋势验证。颈膜品类增速快、竞争小，自然堂驭龄可考虑延伸颈部护理产品线。</div>
+    </div>
+    <div class="flash-item">
+      <span class="fi-tag domestic">国内</span>
+      <div class="fi-title">男士护理赛道世界杯催化：1-5月交易额超50亿元，国货贡献84%增量</div>
+      <div class="fi-summary">面护+32%，身体护理+49%。谷雨从第19跃至第8，自然堂男士冰川抗皱系列获媒体重点推荐。赛道从"基础清洁"向"功效护肤"全面升级，三重窗口叠加。</div>
+    </div>
+    <div class="flash-item">
+      <span class="fi-tag overseas">海外</span>
+      <div class="fi-title">赫莲娜黑白绷带双升级：50%玻色因+内轮廓重塑，618抖音GMV同比+200%</div>
+      <div class="fi-summary">新版黑绷带50PX攻克22项老化痕迹，白绷带升级为"内轮廓重塑"。提前9个月做内容沉淀。"日修夜护"组合策略构建高端抗老场景闭环，小紫瓶可探索日夜分时护理。</div>
+    </div>
+    <div class="flash-item">
+      <span class="fi-tag ip">趋势</span>
+      <div class="fi-title">克丽缇娜推口服美容饮品+"内调+外养"模式：面膜技术进入微囊递送新时代</div>
+      <div class="fi-summary">四款战略新品含2款口服饮品，刘诗诗代言。Inner Beauty赛道再添重磅玩家。面膜技术进入微囊递送+生物工程发酵双驱动时代，屏障修护面膜份额增长217%。</div>
+    </div>
+  </div>
+</div>
+
+<div class="carousel-section">
+  <div class="carousel-wrapper">
+    <button class="carousel-arrow prev" onclick="prevSlide()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="carouselTrack"></div>
+    <button class="carousel-arrow next" onclick="nextSlide()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="carousel-dots" id="carouselDots"></div>
+</div>
+
+<div class="brand-section">
+  <div class="brand-head">
+    <div class="brand-label">Brand Matrix</div>
+    <div class="brand-title">核心竞品追踪</div>
+  </div>
+  <div class="brand-grid" id="brandGrid"></div>
+</div>
+
+<footer class="footer">
+  <p>Beauty Intelligence Center · by 无敌铁金刚 🔩 · 每日更新 · 全量数据可搜索</p>
+</footer>
+
+<script>
+
+/* ═══════════════════════════════════════════
+   DATA ARCHIVE
+   ═══════════════════════════════════════════ */
+const PANEL_IMAGES = {
+  "daily":"📰","competitor":"⚔️","launch":"🆕","trend":"🔮","creative":"🎨","special":"🦋"
+};
+const PANEL_COVER_TEXTS = {
+  "daily":"DAILY REPORT","competitor":"COMPETITOR","launch":"NEW LAUNCH","trend":"TREND","creative":"CREATIVE","special":"SPECIAL"
+};
+const ACCENT_MAP = {
+  daily:"linear-gradient(90deg,#111,#555)",
+  competitor:"linear-gradient(90deg,#E53935,#FF7043)",
+  launch:"linear-gradient(90deg,#7B1FA2,#CE93D8)",
+  trend:"linear-gradient(90deg,#0277BD,#4FC3F7)",
+  creative:"linear-gradient(90deg,#00695C,#80CBC4)",
+  special:"linear-gradient(90deg,#BF360C,#FFAB91)"
+};
+const FEISHU_URLS = {
+  daily:"https://mcn4inh4vhtw.feishu.cn/docx/PwQ6dm4MOoFYXQxgQD8clrkTnhc",
+  competitor:"https://mcn4inh4vhtw.feishu.cn/docx/IKgodqaR8oO9s2x7yH5cTDBan0b",
+  launch:"https://mcn4inh4vhtw.feishu.cn/docx/KOBadHNuhoXhMKxWJQHcSkoDnoc",
+  trend:"https://mcn4inh4vhtw.feishu.cn/docx/RFNmdvfmMoWVkmxVm97cs4E1nde",
+  creative:"https://mcn4inh4vhtw.feishu.cn/docx/Kd9md0sQXoOkvExuQd1cy9D9n3f",
+  special:"https://mcn4inh4vhtw.feishu.cn/docx/SOT3d4JlOo0PJlxiC3ScujNynkh"
+};
+
+const DATA_ARCHIVE = {
+"2026-07-15": {
+  weekday:"星期二", issue:"第21期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"化妆品新原料新规今日正式施行：高风险功效原料从10类缩减为5类",summary:"祛痘/抗皱/去屑/防脱发等不再按高风险管理，备案门槛大幅降低。杭州率先推出\u201c优审快办\u201d2日快速通道。新增变更更新机制，允许企业根据新发现更新注册备案信息。",judge:"今年最重要的政策拐点之一。抗皱原料备案松绑将直接加速重组多肽、生物活性肽等成分申报。利好自然堂喜默因功效延伸+男士线功效成分迭代。",source:"国家药监局/深圳市场监管",url:"https://www.nmpa.gov.cn/"},
+        {title:"赵露思官宣个人美妆品牌ROSE AMIGO：定位\u201c情绪护肤\u201d，首款产品锁定颈膜",summary:"赵露思持股90%自主创业，对标FAN BEAUTY（年营收18亿元）。首款备案产品为耀萃焕颜红毯面颈膜，广东海通药业代工。抖音未售先粉1.1万。",judge:"明星自创美妆品牌趋势验证。颈膜品类增速快竞争小。自然堂驭龄可考虑延伸颈部护理产品线。",source:"钱江晚报/潮新闻",url:"https://www.oricon.com/"},
+        {title:"男士护理赛道世界杯催化：1-5月交易额超50亿元，国货贡献84%增量",summary:"面护+32%，身体护理+49%，彩妆+10%。谷雨从第19跃至第8。自然堂男士冰川抗皱系列获媒体重点推荐（纳米A醇PRO+3D紧致肽+喜马拉雅龙胆精粹）。",judge:"赛道从\u201c基础清洁\u201d向\u201c功效护肤\u201d升级。世界杯催化+新规利好+国货份额领先三重窗口叠加，冰川抗皱系列应加速品类扩展。",source:"澎湃新闻/FBeauty未来迹",url:"https://www.thepaper.cn/"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"迪奥花秘护肤科技峰会：首次揭晓长寿科学科研突破，花秘逆转面霜发布",summary:"上海西岸中环峰会，公布\u201c肌肤长寿罗盘\u201d——识别出15条被年龄改变的细胞通路。发布复合玫瑰逆转肽\u2122-35，宣称10维匿龄重塑。联合19位科学家成立匿龄美妍科技委员会。",judge:"高端抗老\u201c诸神之战\u201d全面升级。欧莱雅/雅诗兰黛/LVMH三巨头均已锚定长寿科学叙事。驭龄系列需找到更独特的差异化科学锚点。",source:"ELLE/迪奥官方",url:"https://www.dior.com/"},
+        {title:"赫莲娜黑白绷带双升级：50%玻色因+内轮廓重塑",summary:"新版黑绷带50PX：50%玻色因，攻克22项老化痕迹。白绷带升级为\u201c内轮廓重塑\u201d。618抖音GMV同比+200%，提前9个月布局内容沉淀。",judge:"\u201c日修夜护\u201d组合策略构建高端抗老场景闭环。\u201c内轮廓重塑\u201d是新的竞争话术。小紫瓶可探索日夜分时护理概念。",source:"网易/日本窗",url:"https://www.163.com/"},
+        {title:"克丽缇娜全球新品首发：推口服美容饮品，\u201c内调+外养\u201d模式",summary:"全球代言人刘诗诗，四款战略新品含2款口服美容饮品。明确从\u201c美\u201d到\u201c健康\u201d的战略转型。验证预判#64——至少3个头部品牌将推出口服线。",judge:"Inner Beauty口服美容赛道再添重磅玩家。\u201c妆食同源\u201d将成为品牌延伸热门方向。",source:"牡丹晚报/克丽缇娜官方",url:"https://www.chlitina.com/"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"面膜技术进入\u201c微囊递送+生物工程发酵\u201d双驱动时代",summary:"纳米微囊技术使活性成分透皮吸收率提升3-5倍。生物工程菌发酵技术取代传统化学合成成为主流。屏障修护面膜市场份额较2020年增长217%。",judge:"自然堂可考虑将微囊递送技术应用于小紫瓶系列，提升核心成分渗透效率。",source:"原创力文档/行业报告",url:"https://www.max.book118.com/"},
+        {title:"日本花王珂润持续深耕\u201c红荒肌\u201d护理",summary:"延续报道。花王珂润围绕敏感肌修复持续迭代。自然堂\u201c喜马拉雅\u201dIP可围绕\u201c高原肌肤问题\u201d做长期科研+公益叙事。",judge:"比泛泛的ESG更有记忆点。\u201c高原肌肤问题\u201d是自然堂独有的科研叙事锚点。",source:"瑞丽伊人风尚",url:"https://www.rayli.com.cn/"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"\u201c内调+外养\u201d口服美容赛道加速升温",summary:"克丽缇娜口服饮品+胶原蛋白肽市场爆发+PQQ+麦角硫因成口服抗衰新组合。2.3万亿情绪经济市场推动\u201c感受导向\u201d消费。",judge:"预判：2026Q4头部国货品牌将被迫评估口服美容产品线布局。\u201c情绪护肤\u201d从概念走向品牌实践。",source:"行业综合",url:"https://www.sohu.com/"},
+        {title:"张凌赫接棒肖战代言陌森眼镜：24小时销售1380万",summary:"95生商业价值第一，代言总数20个。肖战2026上半年密集官宣3个新代言，17个\u201c全球品牌代言人\u201d头衔。品牌从\u201c长期绑定\u201d转向\u201c快消式代言\u201d。",judge:"选代言人的核心指标正从\u201c形象匹配\u201d转向\u201c可预测的稳定转化能力\u201d。95后艺人商务白热化。",source:"头条新闻",url:"https://www.toutiao.com/"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"丸美\u201c大眼崽\u201d自有IP模式持续发酵",summary:"延续报道：丸美13年三级跳完成明星IP\u2192艺术家IP\u2192自有IP升级。验证预判#72/#84——品牌自孵IP将成为美妆品牌新标配。",judge:"自然堂需在Q3完成\u201c喜马拉雅\u201dIP从溯源叙事到可迭代品牌符号的升级评估。",source:"搜狐/丸美官方",url:"https://m.sohu.com/a/1049633819_120724283/"},
+        {title:"杭州推出化妆品\u201c优审快办\u201d机制：信用良好企业2日快速通道",summary:"率先推出化妆品\u201c优审快办\u201d机制——信用良好企业可进入\u201c快速通道\u201d，2个工作日内完成资料整理及公布。预计将被更多城市复制。",judge:"需评估自然堂自身备案速度。杭州模式推广后，竞品也将加速。先行者优势窗口期有限。",source:"深圳市场监管",url:"https://www.amr.sz.gov.cn/"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"2026H2竞争将从\u201c成分军备竞赛\u201d全面升级为<em>\u201c原料创新速度+科学叙事体系+产品家族生态\u201d的三位一体竞争</em>。新规降低创新门槛（利好），但竞品创新速度也更快（压力）。"},
+        {label:"行动一",text:"<em>抓住新规窗口</em>：立即评估喜默因备案保护进度+梳理祛痘/抗皱品线功效成分迭代计划。"},
+        {label:"行动二",text:"<em>驭龄叙事打磨</em>：在迪奥/兰蔻/赫莲娜三巨头锚定\u201c长寿科学\u201d的当下，驭龄需找到差异化科学锚点（建议：喜马拉雅极地微生物=独特长寿因子）。"},
+        {label:"行动三",text:"<em>男士线加速</em>：世界杯催化+新规利好+国货份额领先，三重窗口叠加，男士冰川抗皱系列应加速品类扩展。"}
+      ]
+    }
+  ]
+},
+"2026-07-14": {
+  weekday:"星期二", issue:"第20期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"丸美自有IP\"大眼崽\"+DORA联名双线并行：国货美妆进入\"品牌IP资产化\"时代",summary:"第13届眼霜节推出5款自有孵化IP\"大眼崽\"，同步与DORA联名7/17深圳主题包店。丸美2025年主品牌营收25.47亿（+24%），Q1线下+31.55%。13年完成明星IP→艺术家IP→自有IP三级跳。",judge:"品牌自孵IP是下半年最大的结构性机会。自然堂\"喜马拉雅\"IP需从\"溯源叙事\"升级为\"可沉淀的情感符号\"。",source:"搜狐/丸美官方",url:"https://m.sohu.com/a/1049633819_120724283/"},
+        {title:"韩妆新锐大举进军中国线下：Lilybyred南京首店+欢禧集团矩阵化运营",summary:"Lilybyred 7月南京首店，进入5000+终端。欢禧集团运营矩阵含COSRX/SKIN1004等。韩妆2025出口114亿美元全球第二，Olive Young营收267亿元。品类创新持续引领中国（湿敷棉片/腮红膏/PDRN）。",judge:"韩妆新锐正抢夺18-28岁消费者，30-100元价格带与自然堂部分产品线直接竞争。",source:"美妆头条",url:"http://www.mztoutiao.com/index/index/wenzhang.html?id=4318"},
+        {title:"维琪科技IPO：多肽原料龙头进入资生堂、雅诗兰黛供应链",summary:"北交所申购（PE 14.99x），拥有22个备案新原料（9个创新原料全国第一），产品已进入资生堂/雅诗兰黛目录。2025营收2.75亿元。",judge:"中国原料企业从\"国产替代\"升级为\"全球供应商\"。自然堂喜默因需加速备案保护。",source:"北京商报",url:"http://m.toutiao.com/group/7661961150258577935/"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"赫莲娜官宣陈星旭品牌挚友+北京鼓楼沉浸式体验",summary:"推广第六代绿宝瓶精华。北京鼓楼\"饱满人生之旅\"7/9-22，萃取十二时辰文化打造全时段养肤体验。从上海→崇左→北京持续加码城市文化地标快闪。",judge:"赫莲娜\"城市文化地标+品牌体验\"快闪策略投入力度加大。自然堂可参考\"沉浸式品牌体验\"模式。",source:"ARENAHOMMEPLUS",url:"https://m.weibo.cn/detail/5320241065231813"},
+        {title:"兰蔻张婧仪+张凌赫同步升级代言：双人联动策略深化",summary:"张婧仪升全线品牌大使（彩妆+护肤+香水），张凌赫升级护肤大使。长期合拍大片带货数据持续走高。",judge:"\"双人联动+长期绑定+差异化定位\"的代言策略值得研究。自然堂可考虑互补型双人组合。",source:"今日头条",url:"http://m.toutiao.com/group/7661981695331123753/"},
+        {title:"男士护理赛道迎拐点：2026年1-5月交易额超50亿（+25%），国货贡献84%增量",summary:"男士面护+32%，身体护理+49%。国货TOP20占11席。谷雨从第19跃至第8，buv从15跃至第5。需求从基础清洁向多场景扩散。",judge:"冰川系列需跳出\"洁面+控油\"，向\"场景化男士状态管理\"升级。世界杯热度进一步催化。",source:"界面新闻",url:"https://m.jiemian.com/article/14752140.html"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"花王亚洲美发战略：Liese莉婕\"H-Linx TECH\"新技术中国全球首发",summary:"花王发现染发后7天内毛发持续损伤，开发新技术修复。目标亚洲第一染发品牌。新系列8月亚洲7国上市，中国全球首发。首次推出染后护理套装。",judge:"花王将中国视为亚洲染发战略核心。头皮护理+发质修护赛道值得关注。",source:"东方网",url:"http://qiye.eastday.com/n34/20260713/97c3c226c3944409a7b19a071f5f77e4.html"},
+        {title:"韩国Cooling Beauty完整体系成形：从防晒到\"凉感护肤全品类\"",summary:"韩国引领凉感美妆新品类——防晒→棉片→面膜→头皮喷雾→身体湿巾。配方从薄荷醇转向泛醇+积雪草复合。定位为\"高温环境下的功能性肌肤护理\"。",judge:"预判#45/#48验证。自然堂\"喜马拉雅冰川凉感\"是天然信任锚，今夏可在防晒/晒后修护中试水。",source:"Vijesti",url:"https://en.vijesti.me/lifestyle/fashion-and-beauty/817630/"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"美妆\"价值战\"取代\"价格战\"：618数据确认哑铃型消费结构",summary:"400元以上份额提升，200-400元下降。头部品牌主动收缩低效直播带货，转向品牌自播与心智建设。功效护肤翻倍增长，外资全面回归。",judge:"自然堂在200-400元\"被挤压地带\"，要么向上走（科研叙事）要么极致性价比，中间路线难存活。",source:"搜狐",url:"https://m.sohu.com/a/1049717054_122876159/"},
+        {title:"Cosmax×日本Fujishin合资：AI定制化化妆品首次出海日本",summary:"全球最大ODM与日本美容企业成立Trinex合资公司。利用2万家美容院网络+200万+AI咨询数据。计划扩展至美国/意大利。",judge:"AI定制化化妆品从概念走向商业化。自然堂可评估旗舰门店AI肤质检测+定制推荐服务。",source:"Korea Biomedical Review",url:"https://www.koreabiomed.com/news/articleView.html?idxno=32399"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"丸美×DORA联名主题包店：\"自有IP长期资产+外部联名短期流量\"双轨策略",summary:"7/17起深圳WOW COLOUR主题包店至8/15。联名限定款+打卡福利+消费赠DORA周边。同步自有IP\"大眼崽\"走向全年品牌触点。",judge:"丸美\"自有IP+外部联名\"双轨IP运营模式值得借鉴。DORA受众与自然堂目标人群有重合。",source:"丸美微博",url:"https://m.weibo.cn/detail/5320158110549892"},
+        {title:"韩国Medicube赢得媒体价值EMV增长150%全球美妆品牌第一",summary:"CreatorIQ数据：Medicube以PDRN成分+<30美元定价，EMV增长至7.09亿美元居全球美妆第一。平价品牌通过\"创作者优先\"策略碾压奢侈品美妆。",judge:"美妆社媒竞争力不与价格正相关，而与内容策略正相关。自然堂社媒内容需要更强的\"创作者优先\"思维。",source:"商域见闻",url:"http://m.toutiao.com/group/7661860737924514331/"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"美妆行业正式进入<em>\"品牌IP资产化\"</em>时代——丸美13年三级跳证明，品牌需要从\"借势外部IP\"走向\"自孵情感符号\"。"},
+        {label:"课题一",text:"品牌IP评估：\"喜马拉雅\"能否具象化为有情感人设的品牌符号？参考丸美\"大眼崽\"5款人设覆盖多元人群的<em>IP矩阵思维</em>。"},
+        {label:"课题二",text:"小紫瓶\"充能仪式\"：为小紫瓶设计一个可以引发共鸣的<em>情绪价值载体</em>，让护肤从\"功能消费\"升级为\"对自己的仪式\"。"},
+        {label:"课题三",text:"男士冰川系列升级：从\"基础控油\"升级为<em>\"男士状态管理方案\"</em>，切入运动后/通勤/社交等具体场景。"}
+      ]
+    }
+  ]
+},
+"2026-07-13": {
+  weekday:"星期一", issue:"第19期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"赵露思个人美妆品牌ROSE AMIGO首次亮相，定位\"情绪护肤\"+面颈膜切入",summary:"7月11日澳门演唱会外首次派样。品牌定位\"情绪护肤伙伴\"，首款备案产品为面颈膜，赵露思持股90%。2026上半年已有华晨宇POINZ、明道兰愈力等明星自创美妆品牌。",judge:"明星美妆创业从\"代言变现\"进入\"品牌资产经营\"阶段。自然堂需提前思考与代言人的合作深度——是纯代言还是共创IP。",source:"妆颜社",url:"https://m.sohu.com/a/1049312370_122530412/"},
+        {title:"雅诗兰黛倩碧发布首款国产重组PDRN产品，国际巨头深度整合中国合成生物供应链",summary:"倩碧CX肌源深修水光系列采用本土企业瑞吉明重组PDRN，是雅诗兰黛首款国产PDRN商业化落地产品。搭载双重组核心成分与牛奶纳米超渗科技。",judge:"国际巨头从\"进口原料中国卖\"转向\"中国原料全球用\"。自然堂喜默因等自研原料必须加速产业化和全球化布局。",source:"搜狐头条周报",url:"https://m.sohu.com/a/1049221192_121123896/"},
+        {title:"雅诗兰黛小棕\"复活水\"+官宣苏翊鸣等三位体育冠军代言",summary:"小棕家族40年来首款精华水，搭载专利成分实现细胞级深修。苏翊鸣+叶诗文+余依婷三位体育冠军诠释\"冠军精神\"。",judge:"\"体育冠军代言矩阵\"是新趋势——无舆情风险+国民好感度高+\"自律=美\"叙事天然成立。自然堂\"攀登精神\"可能是天然锚点。",source:"时装LOFFICIEL",url:"http://m.163.com/dy/article/L1KT3CIN0518D7K9.html"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"韩束虚假宣传被罚110万+高管变动+7月24日开庭，\"高增长+高风险\"矛盾突出",summary:"韩束因虚假宣传被罚110万元。上美股份执行董事周蔚辞职，提名王韬为新任董事。7月24日将开庭买卖合同纠纷。尽管如此，6月抖音护肤榜单韩束仍排名第一。",judge:"韩束\"重营销轻合规\"模式在IPO后面临更大监管压力。渠道矩阵打法值得学习，但合规风险是前车之鉴。",source:"益客院落/企查查",url:"https://www.qcc.com/cfinance/2ab2dcd75c8d5d5d167fb8705e4e4dec.html"},
+        {title:"橘朵入驻美国最大美妆连锁Ulta Beauty，C-Beauty进入主流渠道",summary:"首批上线13款TikTok爆款单品，定价8.99-19.99美元对标e.l.f.。已挺进中东海湾六国60家线下高端美妆店。",judge:"C-Beauty出海从\"跨境小包\"进入\"主流渠道品牌化\"阶段。自然堂出海可关注东南亚/中东新兴市场。",source:"网易",url:"https://c.m.163.com/news/a/L1LVKMUP0539E9ND.html"},
+        {title:"韩国K-beauty精华品类中国市场爆发：TOP10销量+40.4%，SKIN1004暴增300%",summary:"6月天猫韩国馆精华TOP10销量20500件（+40.4%）。SKIN1004从1000→4000件（+300%），VT+233%，Anua首次入榜。后Whoo高端精华+50%。",judge:"韩系精华正在用\"强功效成分+清晰护肤方案\"抢夺200-500元价格带的中国消费者——这恰好是自然堂的核心战场。",source:"The BK",url:"https://www.thebk.co.kr/news/articleView.html?idxno=310428"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"资生堂推出\"冰沙精华\"凉感护肤品，日本降温市场达583亿日元",summary:"资生堂\"Sorbet Serum\"需冷冻一夜后变成冰沙质地。日本降温产品市场583亿日元（4年增50%+），涵盖风扇背心、冰环、冷感毛巾、凉感化妆品等。",judge:"凉感护肤是中国市场的明确空白点。自然堂\"喜马拉雅冰川凉感\"是天然信任锚，今夏可在防晒/晒后修护中试水。",source:"朝鲜日报英文版",url:"https://www.chosun.com/english/world-en/2026/07/12/JI6TRWJ4ARBYXC4VM3T7DU2HOI/"},
+        {title:"韩国GLOWPICK 2026中期大奖揭晓：PDRN精华、屏障修护、纯净配方成主流",summary:"基于25.7万条评价评选。抗老精华冠军VT PDRN Essence 100，屏障修护成面膜/面霜主旋律。rdrd（romand姊妹品牌）以发酵苹果成分入围。",judge:"韩国消费者用投票确认了PDRN+屏障修护+温和配方的主流化趋势。自然堂需关注发酵成分在韩系的深化应用。",source:"YesStyle",url:"https://www.yesstyle.com/blog/2026-07-13/glowpick-mid-year-awards-2026/"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"\"明星自创美妆品牌\"浪潮加速：2026上半年至少3位明星创立个人品牌",summary:"赵露思ROSE AMIGO（持股90%）、华晨宇POINZ（首日GMV 2100万）、明道兰愈力。从代言人到创始人的身份跃迁加速，ODM/OEM体系成熟降低创业门槛。",judge:"代言生态正在重构：头部艺人可能不再满足于\"卖脸\"，而要求品牌合伙权。自然堂需为代言人提供超越代言费的深层价值。",source:"妆颜社",url:"https://m.sohu.com/a/1049312370_122530412/"},
+        {title:"三丽鸥中国市场收入暴增84%，IP经济持续升温",summary:"三丽鸥2025财年营收1941亿日元（+33.9%），中国市场收入约15.02亿元（+84%）。库洛米、美乐蒂多IP矩阵人气高涨，计划重点扩张中国市场。",judge:"\"情绪价值消费\"持续强劲。三丽鸥成功在于\"多IP矩阵+本地化限定+持续开店体验\"三位一体。自然堂IP联名应选择有\"情感深度\"的IP伙伴。",source:"网易品牌营销周报",url:"https://c.m.163.com/news/a/L1LH3LBR0556IIB1.html"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"星巴克×泡泡玛特MOLLY 20周年联名：150+主题店，联名进入\"全链路体验\"时代",summary:"北京蓝色港湾店化身MOLLY\"痛店\"，全国150+主题店同步。联名透明冰杯、烫金贴纸透卡、吸管勺等周边引爆收藏。社媒UGC大量涌现。",judge:"联名从\"贴图时代\"进入\"空间体验时代\"。小紫瓶\"紫色充能站\"如有IP加持，应从柜台包装升级为沉浸式体验空间。",source:"品牌道",url:"https://c.m.163.com/news/a/L1LH3LBR0556IIB1.html"},
+        {title:"资生堂官宣Lisa为全球大使：泛亚布局替代深耕中国",summary:"BLACKPINK Lisa成为资生堂全球大使，泰国举办ULTIMUNE STUDIO盛大发布。亚太区CEO表示下半年对新产品线充满信心。",judge:"资生堂战略重心从\"深耕中国\"转向\"泛亚布局\"，在中国持续收缩。自然堂有机会在其留下的空白市场中巩固地位。",source:"福布斯泰国/微博",url:"https://m.weibo.cn/detail/5319833815089298"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"美妆行业正经历<em>\"创始人化\"浪潮</em>——明星不愿只代言而要自己建品牌，消费者要的是\"人格化连接+沉浸式体验\"。"},
+        {label:"课题一",text:"代言人策略升级：评估与赵露思合作深度，从\"纯代言\"向<em>\"品牌共创\"</em>方向探索（联名线、成分共创等）。"},
+        {label:"课题二",text:"凉感护肤窗口期：今夏在防晒/晒后修护产品线试水<em>\"冰川凉感\"</em>概念，用喜马拉雅地理背书建立差异化。"},
+        {label:"课题三",text:"IP联名深度化：参考星巴克×MOLLY的<em>\"产品+IP+空间+周边\"</em>四维模式，小紫瓶开学季需要一个可沉浸的IP体验设计。"}
+      ]
+    }
+  ]
+},
+"2026-07-12": {
+  weekday:"星期日", issue:"第18期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"商务部50城消费\"三新\"试点首批86亿拨付，明确支持美妆潮玩IP联名",summary:"50个消费新业态新模式新场景试点城市已收集项目超6000个，带动社会投资超3000亿元。明确提到支持\"美妆潮玩等领域IP联名\"、\"开主题店概念店\"、\"联动国潮动漫影视IP打造综合性消费场景\"。试点覆盖人口超4.8亿人。",judge:"下半年品牌营销的超级政策红利窗口。自然堂应抓住\"IP联名+场景体验\"方向，在开学季/Q4策划符合政策导向的线下快闪/IP联名项目。",source:"商务部",url:"https://politics.gmw.cn/2026-07/11/content_38880200.htm"},
+        {title:"丸美第13届眼霜节发布自有IP\"大眼崽\"，线下渠道Q1逆势增长31.55%",summary:"丸美首次推出自有孵化IP\"大眼崽\"家族（5个形象对应不同情绪圈层），同步获日内瓦国际发明金奖（重组双胶原蛋白技术）。Q1线下渠道同比增长31.55%，为三大渠道分别定制IP限定礼盒。",judge:"用13年把\"品类=品牌\"钉进消费者心智。自孵IP而非外部联名，是更高维的品牌资产沉淀策略。自然堂喜马拉雅IP应从\"溯源叙事\"向\"可沉淀的情感符号\"升级。",source:"头条",url:"http://m.toutiao.com/group/7661170328265097734/"},
+        {title:"百雀羚双重动作：时尚盛典获荣誉+官宣尤长靖+引入研发负责人",summary:"2026中国时尚产业盛典百雀羚获荣誉，首席品牌官发表东方美学演讲。官宣尤长靖为品牌挚友主推\"绿宝石淡纹霜\"。同时引入资深研发负责人强化研发核心团队。",judge:"百雀羚\"东方美学叙事+年轻化代言人+研发补课\"三线同步推进。自然堂\"喜马拉雅\"比\"东方美学\"更独特，应深挖而非泛化。",source:"上观新闻",url:"https://m.sohu.com/a/1048862237_120244154/"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"资生堂持续战略收缩：心机彩妆关闭天猫抖音、欧珀莱股东出清",summary:"资生堂旗下心机彩妆关闭天猫和抖音店铺，仅保留京东海外旗舰店，线下缩减至高城市少量专柜。集团将营销预算集中于核心品牌。欧珀莱运营主体国资股东拟转让全部股份。",judge:"国际巨头在存量时代\"聚焦核心\"比\"广撒网\"更重要。自然堂也应审视品牌矩阵是否过于分散。",source:"企查查",url:"https://www.qcc.com/cassets/90ad35e824aa10ae76973031f939417c.html"},
+        {title:"烙色彩妆\"贴标\"翻车被罚30万，抖音达播合规风险暴露",summary:"上海黄浦区市监局处罚：烙色抖音直播间气垫超卖后将02色号复贴上01色号标签发货。52单投诉。烙色抖音销售占比超90%，年GMV曾突破10亿。",judge:"\"达人依赖型品牌\"的合规定时炸弹。90%+销售集中一个平台+高度依赖头部达人=系统性风险。自然堂达人合作需确保供应链全流程可控。",source:"网易",url:"https://www.163.com/dy/article/L1J9IDO10519GV8D.html"},
+        {title:"丸美线下逆势增长启示：品类心智+线下体验+IP情感连接",summary:"丸美Q1线下渠道同比增长31.55%，在行业全域负增长背景下极其罕见。13年眼霜节战略定力+自孵IP+日内瓦金奖+限定礼盒，构建\"品类心智=品牌\"壁垒。",judge:"线下渠道正从\"成本中心\"变为\"品牌体验中心+新增长极\"。自然堂线下终端如有好的体验场景设计（如\"充能站\"主题柜台），有机会在竞品收缩线下时抢占心智。",source:"头条",url:"http://m.toutiao.com/group/7661170328265097734/"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"超分子光甘草定：合成生物学赋能\"温和美白\"新路径",summary:"山东梅奥华卫推出超分子美白金（LumiPt CH），采用诺奖技术（超分子主客体识别），光甘草定水溶性提升2857倍，酪氨酸酶抑制率提升20倍，合成生物学制备纯度≥99.0%，未检出肌毒性杂质。",judge:"\"合成生物学+美白成分\"典型案例，验证了温和美白\"全通路\"趋势。自然堂若布局美白赛道，应关注这类\"温和+全通路+有数据支撑\"的新原料方向。",source:"美妆原料智库",url:"https://m.sohu.com/a/1048938385_122654713/"},
+        {title:"丸美重组胶原蛋白紧塑修护至浓霜：线下限定新品",summary:"丸美第13届眼霜节发布线下渠道限定新品\"胶原支棱面霜\"，搭载获日内瓦国际发明金奖的重组双胶原蛋白技术。日化/百货/美容三渠道分别定制\"大眼崽\"IP限定礼盒。",judge:"丸美用科研金奖+自孵IP+渠道限定三重策略强化线下终端竞争力。自然堂小紫瓶可考虑开发渠道限定款或联名款。",source:"头条",url:"http://m.toutiao.com/group/7661170328265097734/"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"品牌自孵IP成为美妆品牌新趋势：从外部联名到内部造IP",summary:"丸美\"大眼崽\"是最新案例——品牌从零孵化自有情感符号，逐年沉淀迭代。商务部\"三新\"政策明确支持IP联名和场景化零售。泡泡玛特DIMOO×皮克斯联名7月16日发售。",judge:"品牌IP资产化是下半年最大的结构性机会。自然堂\"喜马拉雅\"IP有地理/文化根基，但缺乏可沉淀的视觉符号和情感人设，需从\"一个概念\"升级为\"一个可迭代的IP家族\"。",source:"综合",url:""},
+        {title:"2026中国时尚产业盛典：东方美学从\"被看见\"迈向\"被向往\"",summary:"7月9-10日上海展览中心，百雀羚/LVMH/开云/欧莱雅同台。欧莱雅北亚总裁指出\"美妆是轻量化时尚载体，东方审美反向输出海外\"。LVMH大中华区总裁提出\"新国潮核心是东西融合\"。",judge:"东方美学正在从营销概念升级为产业能力。自然堂\"喜马拉雅\"叙事完全契合这一趋势，但需要更具体的文化锚点和国际化表达方式。",source:"上观新闻",url:"https://m.sohu.com/a/1048862237_120244154/"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"商务部\"三新\"试点+泡泡玛特联名：美妆×潮玩IP联名迎来政策红利",summary:"50城试点明确支持\"潮玩品牌开发联名产品+开设主题零售店\"。DIMOO×皮克斯7月16日线上发售、17日线下。泡泡玛特城市乐园成为北京消费新场景标杆案例。",judge:"自然堂小紫瓶×潮玩IP限定款+线下主题快闪店完全符合政策鼓励方向。建议重点关注泡泡玛特（DIMOO/Labubu）、Chiikawa等热门IP合作机会。",source:"商务部/泡泡玛特",url:"https://politics.gmw.cn/2026-07/11/content_38880200.htm"},
+        {title:"百雀羚×尤长靖：\"有热度非顶流\"代言人的高性价比打法",summary:"尤长靖（02年出生、歌手2026选手）成为百雀羚品牌挚友，长沙见面会粉丝互动火爆，UGC内容大量产出。锁定00后年轻群体，性价比远高于顶流代言人。",judge:"代言人选择应重点看\"粉丝活跃度+与产品场景的匹配度\"，而非单纯看流量数据。\"有热度非顶流\"路线值得关注。",source:"微博",url:"https://weitoutiao.zjurl.cn/rogue/topic_share/?concern_id=1868938148821011"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"品牌<em>IP资产化</em>是下半年最大的结构性机会——政策端鼓励+消费端认可+丸美等企业验证。"},
+        {label:"课题一",text:"短期（Q3）：小紫瓶开学季方案中融入<em>\"IP联名/自孵IP符号\"</em>元素，让\"紫色充能站\"概念有一个可沉淀的视觉符号。"},
+        {label:"课题二",text:"中期（Q4）：策划一个符合<em>\"三新\"政策导向</em>的品牌快闪项目，争取政策资金支持。"},
+        {label:"课题三",text:"战略思考：自然堂\"喜马拉雅\"IP如何从\"溯源叙事\"升级为<em>\"可迭代的品牌符号家族\"</em>？这是需要团队一起脑暴的课题。"}
+      ]
+    }
+  ]
+},
+"2026-07-11": {
+  weekday:"星期六", issue:"第17期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"雅诗兰黛小棕「复活水」重磅上市：40年首款精华水，全时态修护体系",summary:"7月8日上海科技馆发布，175nm微囊深导科技+500+高能修护肽+律波肽。苏翊鸣+叶诗文+余依婷三代冠军同台。小棕家族从精华→眼霜→面霜→精华水完成矩阵延伸。",judge:"雅诗兰黛用40年经典IP构建完整修护生态。自然堂需思考从单品到家族生态的路径，「充能」概念可延伸至精华水/眼霜品类。",source:"新浪财经",url:"https://city.sina.cn/news/2026-07-10/detail-inihhrai8440469.d.html"},
+        {title:"彭博社：中国美妆成下一个全球软实力出口，东南亚成关键战场",summary:"橘宜海外3年增长10倍（2025年8700万美元），珀莱雅在马来西亚建实体渠道。「抖音妆」+中国电视剧正影响东南亚审美。中国出口额仅为法国1/4。",judge:"中国美妆出海从「产品出海」进入「审美+文化出海」阶段。自然堂「喜马拉雅」IP具备东方自然美学基因，有差异化潜力。",source:"参考消息/彭博社",url:"http://m.toutiao.com/group/7660728899148284451/"},
+        {title:"84%消费者按场景选品，美妆进入「微场景时代」",summary:"艾媒咨询数据：晨间妆前急救+67%、熬夜焕亮+197%、换季维稳+149%。珀莱雅/蜜丝婷等已切入具体场景。诺斯贝尔提出「微场景」理论——人群×时序×肌肤状态×场域=最小需求单元。",judge:"场景正取代肤质成为决策第一筛子。小紫瓶「抗疲老」天然适配多个微场景，需将「充能」拆解为具体场景语言。",source:"美妆头条",url:"http://mz.mztoutiao.com/index/index/wenzhang.html?id=4316"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"巨子生物753胶原针上市+颈纹填充剂获批，股价盘中涨超6%",summary:"国内首个重组I型胶原蛋白面部注射剂上市。全球首款用于颈纹的III型胶原填充剂获NMPA批准。医美矩阵成型，化妆品舆论风险出清。",judge:"巨子生物从「敷料品牌」向「全周期抗衰方案」升级。医美+护肤双轨战略值得研究，「妆械协同」思路可借鉴。",source:"智通财经",url:""},
+        {title:"Anua或收购蒂佳婷：两代韩妆的全球化交替",summary:"Anua 2024年TikTok Shop全球美妆营收第一，2025年全球破5亿美元。签约Kendall Jenner，即将入驻丝芙兰中国。美国成韩妆出口第一大目的国。",judge:"韩妆主导权正从巨头向独立品牌转移。Anua「细分审美+DTC起量+零售基建」模式值得研究。",source:"新浪财经",url:""}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"倩碧全球首款重组PDRN水光系列中国首发",summary:"重组PDRN通过合成生物学技术产业化，分子量<650kd，配合重组III型胶原蛋白，构建「妆械协同」全周期护理体系。",judge:"PDRN正式进入「合成生物学量产」时代。雅诗兰黛集团率先卡位，验证了PDRN从「爆发」到「基础化」的预判。",source:"雅诗兰黛集团",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"韩国正式告别Anti-Aging：Slow-Aging成2026年度第一美妆趋势",summary:"Olive Young将Slow-Aging列为年度第一趋势。护肤减法流行（3-5步），屏障优先。Glass Skin升级2.0——从假面感→健康原生好皮肤。",judge:"韩国引领护肤理念范式转换——从「对抗衰老」到「延缓衰老节奏」。与欧莱雅/雅诗兰黛「长寿科学」殊途同归，表达更柔和。",source:"Olive Young",url:""},
+        {title:"中国美妆出海进入「审美共识」时代",summary:"Anua崛起+Olive Young K-Beauty节+TikTok妆出海，信号清晰：出海核心竞争力是「审美输出能力」而非价格。",judge:"抖音妆+中国仙侠风正在复制K-pop带动韩妆的路径。预计2026Q4-2027年至少2个国货品牌在东南亚年销售破亿美元。",source:"综合",url:""}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"自然堂×赵露思澳门演唱会深度联动：场景化代言新模式",summary:"自然堂围绕赵露思7月10日澳门演唱会推出全套联动，主推控油蓬松蓝瓶洗发露，话题矩阵#从头控场一露闪耀#。产品场景与艺人真实行程直接挂钩。",judge:"代言人营销从「品牌曝光」转向「场景化深度绑定」——产品场景+艺人真实事件+互动机制三层联动，值得复制到龚俊代言。",source:"自然堂官方微博",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"雅诗兰黛小棕「复活水」+倩碧重组PDRN同周发力，跨国集团正用「多品牌矩阵+体系化科研」构建竞争壁垒。"},
+        {label:"课题一",text:"自然堂「驭龄」系列的差异化锚点：聚焦<em>「喜马拉雅极地微生物发酵+长寿因子」</em>方向——巨头尚未触及的空白地带。"},
+        {label:"课题二",text:"借鉴韩国<em>Slow-Aging</em>的柔性表达，将「主动调控」转化为消费者更易懂的语言——「让肌肤按照自己的节奏，优雅地慢下来」。"},
+        {label:"课题三",text:"小紫瓶「微场景」产品策略：选择2-3个核心场景（加班熬夜充能/考试季急救），开发场景化产品或产品组合。"}
+      ]
+    }
+  ]
+},
+
+"2026-07-10": {
+  weekday:"星期五", issue:"第16期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"雅诗兰黛小棕\"复活水\"重磅上市：40年首款精华水，从夜间修护升级全时态体系",summary:"雅诗兰黛在上海科技馆发布全新小棕\"复活水\"，搭载175nm微囊深导科技+500+高能修护肽+独家律波肽调节昼夜节律。苏翊鸣+叶诗文+余依婷三代体育冠军同台。小棕家族从精华→眼霜→面霜→精华水，产品矩阵持续延伸。",judge:"雅诗兰黛用40年经典IP构建完整修护生态，从单品突破走向品类全覆盖。自然堂小紫瓶需思考从单品到家族生态的路径，\"充能\"概念可延伸到精华水/眼霜品类。",source:"新浪财经",url:"https://city.sina.cn/news/2026-07-10/detail-inihhrai8440469.d.html"},
+        {title:"彭博社：中国美妆成下一个全球软实力出口产品，东南亚成关键战场",summary:"彭博社长篇报道中国美妆出海：橘宜集团海外销售3年增长10倍（2025年8700万美元），珀莱雅在马来西亚建实体渠道，花西子转向东南亚。\"抖音妆\"+中国电视剧正影响东南亚审美。中国美妆出口额仅为法国1/4、美国60%。",judge:"中国美妆出海从\"产品出海\"进入\"审美+文化出海\"阶段。自然堂\"喜马拉雅\"IP具备东方自然美学基因，未来出海有差异化潜力。",source:"参考消息/彭博社",url:"http://m.toutiao.com/group/7660728899148284451/"},
+        {title:"84%消费者按场景选品，美妆进入\"微场景时代\"",summary:"艾媒咨询数据：84%消费者根据不同使用场景切换产品。晨间妆前急救+67%、熬夜焕亮+197%、换季维稳+149%。珀莱雅防晒切入通勤场景，蜜丝婷\"军训防晒\"条件反射联想，诺斯贝尔提出\"微场景\"理论。",judge:"场景正取代肤质和功效成为决策第一筛子。小紫瓶\"抗疲老\"天然适配多个微场景（加班急救/考试充能/运动恢复），需将\"充能\"拆解为具体场景语言。",source:"美妆头条",url:"http://mz.mztoutiao.com/index/index/wenzhang.html?id=4316"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"倩碧全球首款重组PDRN水光系列中国首发，妆械协同进入新阶段",summary:"倩碧CX肌源深修水光系列以合成生物学技术实现重组PDRN产业化（分子量<650kd），配合重组人源化III型胶原蛋白，构建\"妆械协同\"医美全周期护理体系。40%高端用户已将医美纳入日常皮肤管理。",judge:"重组PDRN从\"概念成分\"进入\"合成生物学量产\"时代，雅诗兰黛集团通过倩碧率先卡位。验证了PDRN将从\"爆发\"走向\"基础化\"的预判。自然堂\"驭龄\"系列需加速自研原料的备案保护。",source:"FBeauty未来迹",url:"https://cj.sina.cn/articles/view/7879848924/1d5acf3dc01901h9vw"},
+        {title:"Clarins娇韵诗推出Double Serum Eye：30年长寿科学+7年表观遗传学",summary:"法国品牌Clarins发布新一代双萃精华眼霜，搭载有机马郁兰提取物（体外中和98%表观遗传变化）+姜黄素。双胞胎研究证实表观遗传衰老可使眼周显老最多4年。96%天然来源成分，定价高端。",judge:"长寿科学从\"面部抗衰\"延伸至\"精准分区护理\"，眼霜成为长寿科技落地的新品类战场。高端护肤正从\"问题导向\"转向\"机制理解\"，消费者需要理解\"为什么需要这套护理\"。",source:"PRNewswire",url:"https://www.prnewswire.com/news-releases/clarins-introduces-double-serum-eye-bringing-30-years-of-longevity-science-to-the-eye-contour-302822344.html"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"自然堂极地圣水精华水上市：93%喜默因原液、全成分仅5个",summary:"无水配方，以93%极地酵母喜默因®原液为基底，天然来源指数96%。主打\"一夜抛光，嫩肤不薄皮\"——通过酵母发酵活性成分从细胞层面激发皮肤自身更新。实测数据：表皮焕新+177%、肌底新生+591%、胶原促生+67%。",judge:"自然堂正在将喜默因从\"原料故事\"推向\"功效验证\"深水区。全成分仅5个的极简配方在\"成分堆砌\"行业背景下是有力差异化表达。科学传播是关键——需讲清\"发酵焕肤vs化学焕肤\"的差异。",source:"界面新闻",url:"https://m.jiemian.com/article/14728403.html"},
+        {title:"百雀羚灵玉面霜落地NAD+细胞抗老通路，国货高端抗衰新标杆",summary:"百雀羚灵玉面霜依托国货自研细胞抗老技术，落地NAD+抗衰通路，结合草本温和配方与囊泡渗透工艺。定价300元档，对标500-800元国际大牌。NAD+成为2026年高端抗衰\"黑马通路\"。",judge:"NAD+正从保健品领域的\"抗老明星\"向护肤领域迁移。百雀羚率先在国货中落地这一概念，但需关注功效验证数据的完整性。对自然堂而言，需明确自己在\"细胞层面抗老\"叙事的差异化锚点。",source:"网易",url:"https://m.sohu.com/a/1047888896_122632014/"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"韩国\"钥匙扣美妆\"爆发：搜索量暴增2450%，从彩妆扩展到防晒护肤",summary:"韩国Zigzag平台Q1\"钥匙扣化妆品\"搜索量同比+2450%，从迷你唇膏/腮红扩展到防晒（PDRN水分防晒面霜等）。蒙克洛斯门店80%顾客选择钥匙扣款。化妆品正从\"护肤工具\"变成\"时尚配饰\"。",judge:"便携性+个性化+社交属性成为产品设计新维度。自然堂防晒/面膜品类可考虑推出\"迷你便携款\"，配合开学季/旅行季做营销事件。",source:"Newsflix",url:"https://www.newsflix.co.kr/news/articleView.html?idxno=31752"},
+        {title:"抖音丽人行业交易规模同比+149%，\"经广一体\"方法论发布",summary:"7月10日抖音丽人行业生态大会在重庆举办。核心数据：中国美业市场规模突破6100亿，抖音丽人交易规模+149%，日均搜索量4000万次。提出\"优经营+强广告+好营销\"三驾马车框架。",judge:"抖音丽人赛道从\"流量红利\"进入\"系统化经营\"阶段。对自然堂线下渠道（门店体验、会员运营）的数字化转型有参考价值。",source:"凤凰网",url:"https://baby.ifeng.com/c/8uccvq2caj2"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"自然堂×赵露思澳门演唱会深度联动：场景化代言新模式",summary:"自然堂围绕赵露思7月10日澳门演唱会推出全套联动：主推控油蓬松蓝瓶洗发露（72h控油蓬松），话题矩阵#从头控场一露闪耀#，每天抽取粉丝送正装+限定套卡+同款发夹。产品使用场景（演唱会蓬松出发）与艺人真实行程直接挂钩。",judge:"代言人营销从\"品牌曝光\"转向\"场景化深度绑定\"——产品使用场景+艺人真实事件+互动机制三层联动。这是值得复制的模式，后续龚俊代言也可参考。",source:"自然堂官方微博",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"肌肤长寿科学正式进入<em>市场验证期</em>，三大集团用10-17年科研沉淀划出极高壁垒。长寿科学将在2026H2成为高端抗老的\"标准叙事语言\"。"},
+        {label:"课题一",text:"自然堂「驭龄」系列的差异化锚点在哪？建议聚焦<em>\"喜马拉雅极地微生物发酵+长寿因子\"</em>方向——这是巨头们尚未触及的空白地带。"},
+        {label:"课题二",text:"<em>NAD+细胞抗老</em>正从保健品向护肤领域迁移，Q4可能成为继PDRN后的又一主流成分。自然堂需评估是否跟进。"},
+        {label:"课题三",text:"韩国<em>\"钥匙扣美妆\"</em>趋势是低成本高传播的产品创新方向，自然堂防晒/面膜品类可配合开学季试水便携款。"}
+      ]
+    }
+  ]
+},
+"2026-07-09": {
+  weekday:"星期四", issue:"第15期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"珀莱雅7.79亿控股花知晓，想做「美妆界安踏」，但主品牌失速+研发率仅2%",summary:"珀莱雅两轮共砸7.79亿元以51%持股将花知晓收入囊中。花知晓2025年营收17.26亿、净利2.80亿，2026Q1仅三个月营收6.75亿。但珀莱雅2025年营收微降1.7%、净利缩水3.5%，主品牌收入同比下滑10.39%，销售费用率飙至49.6%，研发费用率仅2.05%。",judge:"珀莱雅的增长焦虑从内部补课转向外部并购续命。研发率2%的硬伤意味着科技护肤故事越来越难自圆其说。对自然堂：必须在科研叙事上拉开差距，喜默因成本优势95%、自研成分收入占比超80%才是真正的护城河。",source:"新浪财经",url:"https://cj.sina.com.cn/articles/view/5953740931/162dee08306703kz3i"},
+        {title:"巨子生物全球首款交联重组III型全长序列胶原蛋白填充剂获批",summary:"巨子生物成为全球首家同时拥有重组I型、III型胶原蛋白医美植入剂的企业，覆盖面部+颈部皱纹两大抗衰赛道。可复美618线上全渠道GMV同比+25%+，天猫医学美护TOP1、抖音面部精华TOP1。",judge:"巨子生物正完成从功效护肤到医美+护肤双轮驱动的战略升级。可复美不再只是敷料品牌，而是全周期抗衰解决方案。自然堂需评估医美机构合作和围术期护肤赛道的机会。",source:"江海证券研报",url:"http://wap.hibor.org/wap_detail.aspx?id=e630ea5db91fe0192867cfb3abd00b9a"},
+        {title:"自然堂集团估值逻辑被机构拆解：利润增速6.6倍于收入增速",summary:"研究机构以自然堂为核心案例搭建四维估值框架。2025年营收53.18亿同比+15.6%，经调整净利4.13亿同比+102.9%。喜默因成本较外购低95%，自研成分产品收入占比超80%，直营占比56.5%，注册会员4250万+。",judge:"自然堂在资本市场定位为自研原料驱动利润弹性的国货标杆。港股递表前这份报告为IPO定价建立了锚点。关键是确保科研叙事的可验证性。",source:"界面新闻",url:"https://m.jiemian.com/article/14721268.html"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"珀莱雅成国货美妆「最贵股」超越毛戈平，但估值逻辑暗藏隐忧",summary:"截至7月3日珀莱雅股价59.91元超越毛戈平48.63元，成国货美妆新晋最贵股。11家上市公司股价全线下滑，华熙生物、贝泰妮市值蒸发约88%。珀莱雅年初至今跌12.51%但跌幅较小，花知晓并购+回购计划支撑股价。",judge:"国货美妆进入效率竞争时代——谁能在更低费用率下实现更高增长谁就赢。珀莱雅49.6%销售费率+2%研发率的组合在资本市场的信任度正在下降。自然堂应强化研发率优势作为差异化叙事。",source:"美妆产业圈",url:"https://cj.sina.cn/articles/view/2641015094/9d6ab13600101hx6y"},
+        {title:"2026上半年抖音美妆TOP20：韩束蝉联第一，国货包揽前三",summary:"韩束蝉联第一、珀莱雅第二、谷雨取代欧莱雅位列第三，国货首次包揽前三。蜜丝婷、C咖首次上榜。SK-II从第16降至第19、丸美从第15降至第20。蒂洛薇蝉联彩妆香水榜首。",judge:"国际品牌在抖音份额被持续蚕食。韩束品类扩张策略（护肤+身体护理+洗护）建立规模壁垒。自然堂稳居前五但需警惕韩束拉大差距。",source:"行业数据",url:"https://weitoutiao.zjurl.cn/rogue/topic_share/?concern_id=1610488185476173"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"本若岚BEAURORA极光现萃精华发布，「现萃激活」概念切入无损修护",summary:"AI健康科技品牌生生纪旗下护肤品牌本若岚发布核心单品极光现萃精华。通过专属极光现萃舱对独立封装精华凝露进行现场激活，实现每晚现萃、鲜活即用。主打7零无损修护：0痛感、0破皮、0拔干、0刺激、0恢复期。",judge:"活性成分即时激活的产品形态值得关注。传统精华开封后活性成分随时间氧化衰减，现萃形态解决了痛点。等离子技术应用于护肤也是新方向。",source:"新京报",url:"https://m.bjnews.com.cn/detail/1783512205129601.html"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"美妆新品牌集体告别「讨好型人格」：人群精准细分+科研叙事底层化",summary:"2026上半年新品牌呈现三大趋势：科研叙事从添加了什么升级为为什么有效；功能与情绪并列成为产品标配；目标人群从广谱覆盖转为精准细分。重点POINZ上线3月天猫吸粉17万+，299元礼盒售出4万+件。",judge:"美妆行业正式进入精准人群+科研底层化的新竞争阶段。讨好所有人的品牌策略已经失效。自然堂抗疲老定位本身就是精准人群策略的优秀范例，需在科研叙事上持续深化。",source:"C2CC新传媒",url:"http://finance.sina.cn/2026-07-08/detail-inihapmy8208228.d.html"},
+        {title:"韩国食药处发布化妆品安全评估细则，禁止AI假专家广告",summary:"韩国食药处发布化妆品法修订案，核心内容：化妆品安全评估制度2028年起分阶段实施至2031年覆盖全品类；禁止AI生成假专家推荐化妆品广告；允许员工分装销售特定化妆品。",judge:"韩国在化妆品监管上走在前列。AI假专家广告禁令值得中国监管参考。国内美妆直播中AI数字人医生推荐的灰色地带需警惕合规风险。",source:"Nuri Ilbo",url:"https://nuriilbo.com/mobile/article.html?no=875712"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"田栩宁多品牌代言矩阵成型：韩束+欧莱雅彩妆全球+AYOR TOYS",summary:"田栩宁即将官宣巴黎欧莱雅彩妆全球代言人，此前已为韩束品牌代言人、AYOR TOYS品牌全球代言人。从百元日用到千元高奢全覆盖，柠檬水粉丝群体消费力已在前几单商务中验证。",judge:"品牌选人逻辑从看粉丝量转向看消费力+动销确定性。自然堂在选择合作艺人时应优先评估实际带货转化数据而非单纯流量。",source:"行业消息",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"美妆行业从<em>规模竞争</em>转向<em>效率竞争</em>。珀莱雅49.6%销售费率+2%研发率 vs 自然堂102.9%利润增速+80%自研成分占比——两种增长模式的分水岭已出现。"},
+        {label:"课题一",text:"自然堂港股递表在即，科研叙事的<em>可验证性</em>是定价锚点——不是有多少专利，而是消费者能感知到的差异化价值。"},
+        {label:"课题二",text:"<em>即时感护肤</em>是Q3-Q4的蓝海机会。小紫瓶抗疲老天然匹配「5分钟充能回血」的场景化表达。"},
+        {label:"课题三",text:"<em>医美+护肤双轮驱动</em>是巨子生物的下一步棋。自然堂需评估围术期护肤赛道的进入时机。"}
+      ]
+    }
+  ]
+},
+"2026-07-07": {
+  weekday:"星期二", issue:"第13期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"兰蔻菁纯MD驭时补剂精华全渠道上市，主打「肌肤长寿科学」",summary:"7月7日全渠道上市，首次规模化应用Mitopure线粒纯(尿石素A)，蔡依林代言。分龄设计三款产品——初时精华(20-30岁)、凝时精华(30-50岁)、逆时精华(50岁以上)，定价1500-3000元区间。",judge:"高端抗老赛道正式进入精准化+体系化时代，纯成分堆砌的差异化越来越难站住脚。对驭龄系列而言，必须加速体系化科研叙事，否则在高端抗老定义权争夺中被边缘化。",source:"新浪风尚",url:"https://cj.sina.cn/articles/view/7880068200/1d5b04c6806801j3zq"},
+        {title:"赫莲娜第六代绿宝瓶发布，16年科研体系升级「细胞响应」概念",summary:"核心成分从五代2亿海茴香细胞提取物跃迁至10亿海茴香纳米级细胞精粹，提出细胞响应概念，关注细胞如何感知压力、启动应答并维持稳态。已积累15项国际论文及会议发表。",judge:"科研体系成为高奢护肤核心资产。对自然堂的启示：必须建立可持续迭代的科研叙事，而不是靠单一成分打天下。",source:"FBeauty未来迹",url:"https://m.sohu.com/a/1046378298_121353633/"},
+        {title:"凉感美妆从夏季噱头变成长期机会，2026年1-5月销售额2.56亿元(+46%)",summary:"凉感化妆品从季节性肤感升级为功能性卖点。技术从化学凉感(薄荷醇)升级为物理降温(赤藓醇+丁二醇)，实测数据成为新标配——敷尔佳打出5分钟降温6.7C。品类已蔓延至底妆、面膜、精华、眼霜等。",judge:"凉感正在从季节性噱头升级为功能性卖点。核心逻辑是情绪价值+可量化功效。自然堂防晒/晒后修护/身体护理可考虑凉感功能叠加。",source:"界面新闻",url:"https://m.jiemian.com/article/14707727.html"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"国货集体去达播化：从冲榜到算账的战略大转向",summary:"2026年上半年抖音美妆TOP20品牌中85%都在缩减达人推广预算。韩束达人推广占比从21.66%降至<8%，珀莱雅降7个点至26%。品牌自播单场GMV虽不及超头，但利润率更高。",judge:"行业正在从流量竞争转向高质量价值战。对自然堂的启示：不要只看GMV排名，要看净利润率和用户资产沉淀。自播矩阵建设比大促冲榜更重要。",source:"界面新闻",url:"https://m.jiemian.com/article/14708463.html"},
+        {title:"雅诗兰黛倩碧全球首发重组PDRN，CX肌源深修水光系列上市",summary:"7月3日雅诗兰黛中国创新研发中心发布全球首款重组PDRN产品。CX肌源深修水光系列含PDRN童颜次抛精华+面膜，核心成分为「重组PDRN+重组人源化III型胶原蛋白」双DNA成分，搭载[EXO]MIL牛奶纳米超渗科技实现跨皮脂膜深层递送。宣称1支次抛=3重院线水光复配(三文鱼修愈水光+胶原充盈水光+肌底焕亮水光)。联动嘉会医疗、上海市皮肤病医院做临床背书，构建「居家-诊所-随行」三大场景、术前至长期维养五阶段医美全周期体系。",judge:"【重大竞品信号】这是雅诗兰黛集团首个本土创新大赛成果落地产品，标志着「医研护一体化」战略进入实质阶段。重组PDRN绕开传统三文鱼提取，采用国产供应商基因工程量产，解决供应波动和成本问题。618数据已验证绑定临床验证的医美护肤产品逆势增长。自然堂需加速：①驭龄系列临床验证和数据积累；②评估次抛剂型在医美场景的应用；③考虑与医美机构合作开发围术期护肤产品线。",source:"亿邦动力",url:"https://m.ebrun.com/685855.html"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"兰蔻菁纯MD驭时补剂精华上市，蔡依林代言",summary:"Mitopure线粒纯(尿石素A)首次规模化应用于高端护肤，携手瑞士Timeline研发。推出Cell BioPrint肌肤测龄技术精准评估生物年龄。定价预计1500-3000元区间。",judge:"兰蔻继玻色因之后再次定义高端抗老新叙事。对驭龄系列的启示：必须加速体系化科研叙事建立，否则将在高端抗老定义权争夺中被边缘化。",source:"新浪风尚",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"AI重塑美妆全链路：从研发到消费体验的深度渗透",summary:"欧莱雅与OpenAI战略合作、爱茉莉太平洋AI面部老化图谱、雅诗兰黛祖玛珑Pinterest AI香氛探索工具。AI正在从营销噱头变成可落地的零售工具。",judge:"AI正在从营销噱头变成可落地的生产力和体验工具。对自然堂的启示：考虑在线下专柜/快闪店引入AI肤质检测，提升用户体验和转化率。",source:"华丽志",url:"https://luxe.co/post/471873"},
+        {title:"重组PDRN从高端概念走向主流量产，合成生物学重塑原料格局",summary:"雅诗兰黛通过基因工程+微生物发酵实现重组PDRN量产，原料来自「雅创未来」创新大赛获奖的国产生物科技企业。重组PDRN相比传统三文鱼提取具有四大优势：优选序列、高安全性、小分子量、可控生产。功效宣称：舒缓敏感(激活A2A受体抑制TNF-α)、胶原促生(促进I型/III型胶原合成)、屏障修护、肌源焕新。",judge:"合成生物学正在重塑美妆原料格局，PDRN将在Q3-Q4完成从高端概念到主流成分的转折。国产供应商技术突破意味着原料成本将快速下降，中小品牌也有机会入局。需持续关注功效验证数据和临床实证，评估是否可将重组PDRN整合到「驭龄」系列产品中。",source:"上观新闻",url:"https://www.shobserver.cn/sgh/detail?id=4015647"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"爱茉莉太平洋兰芝旗舰店AI定制服务落地",summary:"首尔明洞兰芝全球旗舰店深度融合AI：睡眠唇膜45种搭配定制、Neo气垫150个色号AI匹配+机器人现场制作、Cream Skin 25种配方现场调配(约20分钟)。",judge:"AI正在从概念变成可落地的零售工具。线下体验升级是差异化重要方向。",source:"华丽志",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"高端抗老赛道正式进入<em>精准化+体系化</em>竞争时代。兰蔻和赫莲娜都在做同一件事：把科研积累变成品牌核心资产。"},
+        {label:"课题一",text:"驭龄系列必须在Q3完成<em>体系化科研叙事</em>，否则在高端抗老定义权争夺中被边缘化。"},
+        {label:"课题二",text:"<em>临床验证和数据积累</em>是必须课。618数据已验证绑定临床验证的医美护肤产品逆势增长。"},
+        {label:"课题三",text:"考虑引入<em>AI工具</em>提升线下体验。凉感功能可作为<em>今夏差异化切入点</em>。"}
+      ]
+    }
+  ]
+},
+"2026-07-06": {
+  weekday:"星期一", issue:"第12期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"化妆品\"全面禁汞\"新规正式实施，监管收紧信号明确",summary:"2026年7月1日起，《化妆品安全技术规范》中汞及其化合物标准正式实施，成分表中不得再出现任何含汞成分（如硫柳汞、硼酸苯汞等）。有机汞防腐剂从准用清单调整为禁用原料。",judge:"监管收紧明确，汞类防腐剂全面禁用将倒逼品牌重新审视配方体系。自然堂需确认全线产品配方合规性，可借势传播品牌在成分安全方面的投入。",source:"头条周报",url:"https://m.sohu.com/a/1046051989_121123896/"},
+        {title:"珀莱雅港股IPO申请递交，A股+H股双平台布局",summary:"珀莱雅正式向港交所提交上市申请，中金公司与瑞银集团担任联席保荐人。若成功将成为美妆行业首家\"A+H\"股公司。招股书显示2022-2024年收入从63.85亿增至107.78亿，但2025年上半年增速放缓至7.2%。",judge:"珀莱雅IPO背后是增长乏力的焦虑，港股上市意在融资续命。需警惕其在新市场、新品类的价格战，但对自然堂也是竞品IPO后更激烈融资战和人才争夺的信号。",source:"新股前瞻",url:"https://luzhou.qrlwh.com/news/33b1999947.html"},
+        {title:"6月抖音美妆榜单：韩束4.1亿GMV重回榜首，自然堂稳居前五",summary:"据青眼数据，6月抖音个人护理品牌TOP20中，韩束以4.10亿元GMV回归榜首（除5月外1-6月均居第一），雅诗兰黛3.20亿跃居第二，珀莱雅3.02亿紧随其后，欧莱雅、自然堂分列第四、第五。",judge:"自然堂稳居抖音前五说明渠道运营稳定。韩束品类扩张策略（身体护理+洗发护发）正在放大规模优势，需在品类延伸上寻找差异化切入点。",source:"申万宏源",url:"http://wap.hibor.org/wap_detail.aspx?id=b8dc213e5d71b6b5777fb51961cdcd45"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"618战报出炉：国际品牌拿回头部，天猫TOP20中国际品牌占15席",summary:"天猫美妆TOP10：修丽可、雅诗兰黛、珀莱雅位列前三。抖音美妆TOP3：雅诗兰黛7.35亿、赫莲娜7.03亿、海蓝之谜5.81亿。618出现近年罕见一幕——国际大牌重新拿回头部位置。",judge:"国际品牌618反攻态势明显，\"品牌力+大单品\"策略奏效。国货需在科研叙事上补课，避免陷入纯价格竞争。",source:"618全网战报",url:"https://www.163.com/dy/article/L1051DRP05524XBF.html"},
+        {title:"雅诗兰黛加码医研融合，深耕本土临床实证",summary:"雅诗兰黛持续深化与国内皮肤科医院、科研机构的临床实证合作，推动\"医研共创+场景化验证\"的体系化竞争。",judge:"印证了此前预判——品牌竞争已从\"成分军备竞赛\"升级为\"医研共创+体系化验证\"。自然堂需要在科研叙事上建立更扎实的临床数据支撑。",source:"上观新闻",url:"https://www.shobserver.com/"},
+        {title:"韩束6月抖音持续霸榜，品类扩张放大规模优势",summary:"韩束除5月外1-6月均位居抖音个护榜首，除护肤外已布局身体护理、洗发护发等品类，覆盖更多用户需求。韩束以平价大众定位为主，对大促投入相对克制，通过错峰投放兼顾规模增长与费效平衡。",judge:"韩束的品类扩张策略值得借鉴。自然堂可以考虑在品类延伸上寻找差异化切入点，避免在单一品类与国际大牌正面竞争。",source:"申万宏源",url:"http://wap.hibor.org/wap_detail.aspx?id=b8dc213e5d71b6b5777fb51961cdcd45"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"兰蔻菁纯MD驭时补剂精华中国区发布，主打\"分龄护肤\"",summary:"蔡依林代言配合菁纯MD驭时补剂精华系列发布。该系列主打\"分龄方案\"（初时20-30岁/凝时30-50岁/逆时50岁+），7月6日举办中国区发布盛典，核心成分为线粒体纯（Mitopure）98.5%纯度。",judge:"兰蔻\"分龄护肤\"概念将抗老叙事进一步细分化、精准化。\"驭龄\"系列需思考如何在\"分年龄\"策略上建立差异化定位。",source:"新浪风尚",url:"https://cj.sina.cn/articles/view/7880068200/1d5b04c6806801j19s"},
+        {title:"自然堂小紫棒日夜眼精华：\"日防夜修\"双效护理",summary:"自然堂小紫棒日夜叕叕眼精华首创\"双头双效\"护理模式，日间添加10倍高浓咖啡因+喜默因+PDRN预防细纹，夜间采用三重珍萃油基底+六胜肽PRO修护改善纹路。",judge:"自然堂\"日防夜修\"的分时护理概念契合当前\"程序化护肤\"趋势，可考虑在核心产品线推广类似概念。",source:"网易",url:"http://m.163.com/dy/article/L12NH2G605564VLP.html"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"K-Beauty爆发：CPNA 2026韩妆专区参展品牌增51%",summary:"2026北美最大B2B美容展数据显示，K-Beauty专区扩大，参展品牌同比增长51%。核心趋势聚焦：抗衰/屏障修复/皮肤科认证/医美术后护理、可持续环保包装、AI/家用美容仪。",judge:"K-beauty借助展会平台加速全球化，将对国内细分人群策略形成压力。特别在\"功效化+医美联动\"赛道上需警惕。",source:"Cosmetics Design Asia",url:"https://m.11467.com/product/d51208845.htm"},
+        {title:"欧莱雅等巨头\"去AI化\"：真实美学崛起",summary:"欧莱雅在广告政策中明确禁止使用生成式AI制作的逼真面部/皮肤图像来支撑产品功效，联合利华旗下多芬承诺广告中绝不使用AI呈现真人女性形象。",judge:"\"品牌去AI化\"运动将推动UGC/KOC内容价值回归，消费者对\"过度修图/AI生成\"内容的信任度下降。\"真实素人+真实使用场景\"的内容策略价值将提升。",source:"网易",url:"http://m.163.com/dy/article/L13DH9S00519K7CS.html"},
+        {title:"ESG评级分化：丸美/贝泰妮AAA，珀莱雅从AAA降至AA",summary:"秩鼎ESG评级显示：丸美生物、贝泰妮维持AAA（行业TOP），珀莱雅从AAA降至AA（环境评分仅71.08分拖后腿）。ESG正在从\"加分项\"变成\"必答题\"。",judge:"IPO审核中环境维度信息披露将更严。自然堂IPO进程中需高度重视ESG体系建设，特别是环境维度的信息披露。",source:"新浪财经",url:"https://finance.sina.com.cn/stock/aiassist/esgpj/2026-07-05/doc-iniftryz9444103.shtml"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"明星直播GMV持续爆发：贾乃亮美妆超5.8亿，黄子韬可复美单场760万",summary:"遥望科技明星矩阵爆发：贾乃亮美妆个护超5.8亿，黄子韬\"黄金1小时\"可复美单场760万+，单场曝光量均超3000万+。短视频引流效果显著：熊黛林×维密引流占比40%。",judge:"明星直播从\"流量噱头\"转向\"品效合一\"，但高退货率是隐患。品牌选择合作明星时需更关注粉丝画像与品牌目标人群的匹配度。",source:"618战报",url:"https://www.163.com/dy/article/L1051DRP05524XBF.html"},
+        {title:"Manner×HR赫莲娜联名：调性差异引争议",summary:"Manner Coffee与HR赫莲娜绿宝瓶联名推出\"一杯青回\"饮品，被网友形容为\"高干女儿和厂长儿子的婚姻\"。从定位上看，两个品牌核心用户难以共鸣，活动反响一般。",jududge:"联名需考虑调性匹配和用户重叠度。高端品牌与平价品牌联名可能稀释品牌溢价，需谨慎评估。",source:"中国咖啡网",url:"https://www.gafei.com/kafeibiji-146567"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"国际品牌正在完成<em>\"科研叙事+临床实证+体系化抗老\"</em>的全面升级，兰蔻蔡依林代言配合\"分龄护肤\"概念就是典型案例。"},
+        {label:"课题一",text:"科研叙事补课：<em>加速推进</em>\"驭龄\"系列的临床数据积累和学术背书，建立可验证的功效壁垒。"},
+        {label:"课题二",text:"合规升级：借<em>\"全面禁汞\"</em>新规实施之机，传播品牌在成分安全方面的投入，强化\"安全可信赖\"形象。"},
+        {label:"课题三",text:"渠道精细化：<em>韩束品类扩张策略</em>值得借鉴，考虑在品类延伸上寻找增量空间。"}
+      ]
+    }
+  ]
+},
+"2026-07-05": {
+  weekday:"星期日", issue:"第11期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"雅诗兰黛倩碧发布重组PDRN新品，\"医—研—护\"一体化战略加码",summary:"7月3日，倩碧发布以重组PDRN为核心的CX肌源深修水光系列。这是雅诗兰黛首次在产品中应用该成分，采用基因工程与微生物发酵技术实现重组PDRN量产。集团正在构建覆盖\"居家-诊所-随行\"三大场景、\"术前至长期维养\"五个阶段的医美全周期护肤管理体系。",judge:"成分军备竞赛已升级为\"医研共创+场景化验证\"的体系化竞争。\"驭龄\"系列需要从成分功效转向可验证的皮肤科学体系，才能建立差异化壁垒。",source:"经济观察报",url:"https://m.sohu.com/a/1045734576_118622/"},
+        {title:"美妆品牌大洗牌：上半年20+品牌调整中国运营，出局与重启并存",summary:"2026年前五个月，至少20个美妆品牌在中国市场运营情况发生变化，其中12个关闭/退出，7个重启/回归。跨国集团集体\"降本增效\"，中国美妆市场已从\"新兴市场\"转变为\"成熟竞技场\"。",judge:"品牌需要匹配足够决心和资源才能扎根。自然堂坚持聚焦主品牌、持续科研投入的策略正确，但\"驭龄\"系列需快速建立可验证的技术壁垒。",source:"FBeauty未来迹",url:"https://m.sohu.com/a/1045698448_250147/"},
+        {title:"国货头部品牌战略转向：品牌自播超越达播，告别流量依赖",summary:"2025上半年抖音美妆TOP20品牌达人推广占比约21.66%，今年上半年已降至不到8%。韩束、珀莱雅等头部品牌不约而同\"踩刹车\"，从依赖达人带货转向品牌自营。",judge:"\"GMV优先\"时代已过，品牌建设重新成为核心议题。自然堂需持续强化自播能力，但核心是建立品牌叙事和用户信任。",source:"化妆品观察/品观",url:"https://cj.sina.cn/articles/view/5952915720/162d2490806704bmow"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"赫莲娜、海蓝之谜陷入口碑危机，\"贵妇品牌\"光环褪色",summary:"618期间赫莲娜因价格BUG出现黑绷带半价情况，海蓝之谜因环保包装过于简陋被质疑\"失去品牌仪式感\"。混乱的价格体系、下降的品控和服务体验令核心用户不满。欧莱雅集团更重视修丽可、理肤泉等功效护肤品牌。",judge:"\"品牌光环\"已不足以支撑高溢价。推进高端化时需确保价格体系管控、品控标准、服务体验的一致性，避免\"高端人设\"与实际体验落差。",source:"财经头条",url:"https://cj.sina.cn/articles/view/7857141524/1d452771401903zb80"},
+        {title:"自然堂持续强化科研叙事，喜默因自研壁垒稳固",summary:"界面新闻发布自然堂抗皱套装深度报道，强调\"5D立体紧致体系\"和喜默因自研成分。喜默因采购成本较同类外购成分低约95%，已应用于67个产品配方、年产量超3500万支、贡献营收超10亿元。",judge:"自然堂的\"自研成分+科研叙事\"战略正在进入收获期。\"驭龄\"系列需继承并强化这一叙事逻辑，用可验证的临床数据建立抗老赛道专业形象。",source:"界面新闻",url:"https://m.jiemian.com/article/14702018.html"},
+        {title:"林清轩618抖音GMV同比增长超200%，高端国货证明可行",summary:"林清轩618期间抖音GMV同比增长超200%，拿下面部精华油、化妆水/爽肤水双类目TOP1，始终稳坐抖音面部洗护TOP15。国际投行研报指出其为\"增长最突出的高端国货美妆品牌之一\"。",judge:"高端国货美妆可以在S级大促中与国际大牌正面竞争。\"驭龄\"系列需要对标林清轩的竞争策略，在高端精华油、抗老赛道建立可验证的功效口碑。",source:"化妆品观察/品观",url:"https://cj.sina.cn/articles/view/5952915720/162d2490806704bmow"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"美素双仓次抛精华：太空人参精萃+双仓创新剂型",summary:"美素发布双仓次抛精华，精华液+精华油创新剂型实现\"即融即鲜\"。21天法令纹数量下降30.70%，淡化顽固斑面积减少13.5%，15分钟角质层含水量提升101.69%。612元/20支定位30+熟龄肌。",judge:"次抛剂型正在从\"基础保湿\"向\"高功效抗老\"升级，双仓设计成为技术壁垒。评估\"驭龄\"系列是否可开发次抛剂型新品，强化抗老功效的专业感。",source:"界面新闻",url:"https://m.jiemian.com/article/14701755.html"},
+        {title:"自然堂防脱专场：25年专研国人防脱",summary:"自然堂推出防脱产品专场，主打\"25年专研国人防脱\"概念，依托泛喜马拉雅冰川水和专利成分。",judge:"自然堂正在拓展品类边界，从面部护肤向头皮护理延伸。防脱赛道竞争激烈，需确保科研背书和功效验证的差异化。",source:"北京时间",url:"http://m.toutiao.com/group/7658520001452264207/"},
+        {title:"谷雨男士控油爽肤水：精准切入男性护肤市场",summary:"谷雨推出男士控油爽肤水，主打\"清爽不油、控油祛痘\"功效。与左颜右色、简男等竞品对比，在综合调控水油平衡方面显示更专业的护肤功效。",judge:"男士护肤市场正在成为新增长点。谷雨、珀莱雅等竞品已布局，自然堂男士冰川系列需持续强化科研叙事和差异化优势。",source:"综合",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"重组PDRN成为医美护肤新风口，技术路线从\"提取\"转向\"合成\"",summary:"雅诗兰黛倩碧新品采用重组PDRN，绕开传统三文鱼提取路径。合成生物学正在重塑美妆原料格局，消费者信任正从\"成分党\"转向\"技术溢价\"。",judge:"合成生物学正在重塑美妆原料格局。持续关注喜默因的迭代升级，评估重组PDRN等新原料是否可整合到\"驭龄\"系列产品中。",source:"经济观察报",url:"https://m.sohu.com/a/1045734576_118622/"},
+        {title:"\"情绪价值\"驱动美妆消费，\"慢直播+人格化IP\"模式崛起",summary:"98858vip威尼斯游戏春季直播以\"情绪陪伴\"为定位，全渠道GMV突破30亿元。章小蕙小红书直播单场GMV达1.8亿元，场均客单价2600元，以\"名媛生活方式\"内容种草+信任带货。",judge:"\"情绪价值\"驱动消费正在崛起。考虑在品牌自播中融入\"情绪陪伴\"元素，强化\"驭龄\"系列的情感连接。",source:"综合",url:""},
+        {title:"院线护肤与家用护肤边界持续模糊，\"妆械协同\"成新增长点",summary:"资生堂与美丽田园合作、修丽可高速增长、雅诗兰黛构建\"医—研—护\"体系——头部集团纷纷布局院线场景护肤。消费者需求从\"护肤vs医美对立\"转向\"根据皮肤问题选择整合方案\"。",judge:"妆械协同赛道正在快速成长。自然堂可考虑与医美机构合作开发\"围术期护肤\"产品线，或在\"驭龄\"系列中强化\"院线级居家护肤\"概念。",source:"FBeauty未来迹",url:"https://m.sohu.com/a/1045698448_250147/"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"Le Labo以\"不可复制的门店体验\"逆势增长",summary:"小众香氛品牌Le Labo没有急于铺开线上分销，而是重金投入一线城市核心地段门店，打造\"现场手工调配+街区气质融合\"的美学空间。悦诗风吟重启后砍掉繁杂产品线，聚焦\"面部保湿+防晒\"等核心单品。",judge:"线下场景和体验差异化正在成为小众品牌的生存策略。线下旗舰店需超越\"陈列产品\"功能，向\"生活美学空间\"进化。",source:"FBeauty未来迹",url:"https://m.sohu.com/a/1045698448_250147/"},
+        {title:"半亩花田冲刺港股IPO，孙颖莎代言GMV爆发",summary:"半亩花田母公司花物堂正式递表港交所。孙颖莎代言后发部洗护品类营收同比增长496.1%，签约当月GMV突破3000万元。遭证监会\"六连问\"（股权结构、突击入股定价等）。",judge:"个护赛道正在复制\"代言人+社媒种草\"增长路径。IPO监管收紧，合规性披露是生死线。",source:"界面新闻",url:"https://cj.sina.cn/articles/view/6192937794/17120bb4202002r4ww"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"美妆竞争正从<em>\"流量驱动\"</em>转向<em>\"信任驱动\"</em>——消费者不再为品牌光环买单，而是为可验证的功效、专业背书和一致体验付费。"},
+        {label:"课题一",text:"\"驭龄\"系列科研叙事需要从成分功效转向<em>\"皮肤科学体系\"</em>，参考雅诗兰黛\"医研共创\"模式，积累临床验证数据。"},
+        {label:"课题二",text:"对标赫莲娜的教训，检查<em>价格/品控一致性</em>，避免\"高端人设\"与实际体验的落差。"},
+        {label:"课题三",text:"小红书高端达人合作、\"驭龄\"<em>次抛剂型开发</em>、IPO合规性准备需纳入近期行动计划。"}
+      ]
+    }
+  ]
+},
+"2026-07-04": {
+  weekday:"星期六", issue:"第10期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"蔡依林官宣兰蔻亚太区护肤代言人，\"三奢女王\"商业版图再扩张",summary:"华语乐坛天后蔡依林于7月3日正式出任兰蔻亚太区护肤代言人，继Valentino、宝格丽后成为\"三奢女王\"。代言官宣恰逢第37届金曲奖二封歌后，商业价值正处于巅峰。品牌强调\"自在悦己、不被定义\"的内核，与蔡依林\"跨越岁月沉淀的笃定气场、长期主义保养态度\"高度契合。",judge:"兰蔻选择\"抗老自律\"标签鲜明的天后，直接对标\"轻熟龄+进阶抗老\"人群，与自然堂核心25-35岁用户高度重叠。蔡依林的叙事对国货品牌形成品牌力压制，需强化科研叙事应对。",source:"新浪娱乐",url:"https://k.sina.cn/article_7879776328_1d5abd84806801v7s8.html"},
+        {title:"国际美妆巨头集体转向\"系统抗老\"，国货\"体系化抗老\"概念提前布局",summary:"国际美妆巨头2025年起陆续发声：抗衰产品应从\"单一成分\"转向\"系统整合\"，从\"打补丁\"式单一靶点干预，转向\"打地基\"式全皮层+全结构干预。国货品牌\"构象\"已参与制定《线粒体能量护肤产品研发导则》团体标准，从品牌成立之初就走\"体系化抗老\"路线。",judge:"成分军备竞赛正在见顶，国际大牌选择\"系统整合\"新叙事重新掌握话语权。自然堂\"驭龄\"系列的\"主动调控细胞新生/衰老节奏\"概念与体系化抗老方向契合，需加速提炼科研体系叙事。",source:"搜狐美妆",url:"https://m.sohu.com/a/1045322424_122577103/"},
+        {title:"上美股份人事变动+医研共创升级，韩束\"学术故事\"进入深水区",summary:"上美股份执行董事周蔚因个人职务调整辞职。同日，中国皮肤学领域知名专家郑志忠（复旦大学附属华山医院皮肤科终身教授）正式加入上美科学委员会，担任韩束首席皮肤学专家顾问。这意味着\"医研共创\"正从传播概念走向研发深水区。",judge:"韩束正在加速构建\"学术护城河\"，郑志忠的加入将使韩束在敏感肌+抗老赛道的专业背书显著提升，与薇诺娜的\"医研共创\"模式形成正面竞争。需持续关注韩束后续动作。",source:"新华网",url:"http://www3.xinhuanet.com/fashion/20260703/f750d994aa2a4a91b9afedd72c386c5c/c.html"}
+      ]
+    },
+    { id:"competitor", title:"竞品周报", label:"Competitor Weekly", accent:"competitor",
+      items:[
+        {title:"618数据复盘：抖音美妆325亿同比+16.7%，即时零售爆发",summary:"2026年618全网GMV 9340亿元，同比+4.0%；即时零售628亿，同比+112.3%成为最大增量引擎。抖音美妆GMV 325亿元，同比+16.7%；功效护肤表现突出：修丽可、雅诗兰黛、珀莱雅位列天猫全周期前三，可复美全渠道GMV同比增长25%+。",judge:"即时零售正在成为美妆新增量渠道，高端品牌新客获取能力持续增强。新品是抖音增量关键（新品数同比+144%），可考虑为\"驭龄\"系列设计抖音首发策略。",source:"青眼/炼丹炉",url:"https://m.hibor.com.cn/wap_detail.aspx?id=7bd04e1a12b27cec36ffd808afebbf9c"},
+        {title:"贝泰妮旗下颜钥医美被罚：薇诺娜品牌风险信号",summary:"贝泰妮集团旗下上海颜钥医疗美容诊所有限公司在美团平台宣传\"薇诺娜皮肤医疗\"相关医美团购，涉及虚假宣传，被上海市长宁区市场监督管理局罚款1万元。这是薇诺娜品牌首次因\"医美渠道\"虚假宣传被罚。",judge:"虽是渠道问题而非产品问题，但可能影响薇诺娜\"医研共创\"的公信力叙事。合规底线不可触碰，需持续关注后续舆情。",source:"新华网",url:"http://www3.xinhuanet.com/fashion/20260703/f750d994aa2a4a91b9afedd72c386c5c/c.html"},
+        {title:"花王发布K27规划，中国市场列为\"提质复苏\"重点",summary:"花王集团发布《花王综合报告2026》，提出2027财年\"K27\"中期经营计划，将中国列为亚洲市场\"重点提质复苏市场\"，同时开拓东盟、欧洲增量市场。目标2027年海外整体销售额突破8000亿日元（约336亿元）。",judge:"花王正在从\"收缩\"转向\"进攻\"，对中国市场的重视度提升将进一步加剧中高端护肤竞争，需关注其新品动态和渠道策略。",source:"新华网",url:"http://www3.xinhuanet.com/fashion/20260703/f750d994aa2a4a91b9afedd72c386c5c/c.html"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"兰蔻7月6日推出\"菁纯MD驭时补剂精华\"：涂抹式线粒体补剂",summary:"专为轻熟龄肌打造的抗老精华新品，主打\"涂抹式线粒体补剂\"概念，宣称根源修护细胞老化。线下广告已登陆杭州西湖边大屏幕，蔡依林代言画面同步展示。",judge:"兰蔻新品切入\"细胞级抗老\"赛道，与雅诗兰黛SIRTIVITY-LP™、欧莱雅Longevity AI形成国际大牌\"长寿护肤\"阵营，国货需加快布局。",source:"新浪风尚速递",url:"https://k.sina.cn/article_7880068200_1d5b04c6806801ii9e.html"},
+        {title:"KANEBO发布2026上半年新品战报，下半年继续押注底妆+护肤",summary:"嘉娜宝四款新品在日本各大美容媒体斩获多项大奖：蕴美育妍微精华露（胎脂构想成分）、清透莹采妆前乳（SPF22/PA++四合一）、轻透融感粉饼（原生肌底妆）、导妍平衡霜（外油内干水油平衡）。",judge:"日本美妆继续在\"底妆护肤化\"和\"多功能合一\"方向深耕，与国内\"妆养合一\"趋势同频，KANEBO强调的\"原生感\"与兰蔻新品趋势一致。",source:"微博@KANEBO_OFFICIAL",url:"https://m.weibo.cn/detail/5316655036760465"},
+        {title:"自然堂618男士冰川系列：科研专利+控油保湿双效",summary:"自然堂男士冰川保湿系列（冰川套装）依托泛喜马拉雅曲登尼玛冰川水，获批5项研究专利，发表8篇国内外核心期刊论文。与欧莱雅男士水能保湿套装对比，在科研背书和性价比上更具优势。",judge:"自然堂男士系列科研叙事清晰，与谷雨男士线竞争时具备差异化优势。开学季可重点推广。",source:"黄冈新闻网",url:"https://www.hgdaily.com.cn/w/3/ciye/4O1184O212607O0O1.html"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"医美术后场景验证成为新信任锚，妆械协同赛道升温",summary:"美妆行业信任锚正在从\"成分数字\"迁移至\"极端场景验证\"：医美术后（屏障受损、存在创口）是最苛刻的检验场景，超过半数医美人群会专门购买更高价位的护肤品配合疗程，这一专业信任正在向非医美客群辐射。",judge:"妆械协同赛道正在复刻创新药的\"中国本土创新\"路径：临床场景高迭代速度+消费者高接受度，具备形成反向输出潜力的条件。自然堂可考虑与医美机构合作开发\"围术期护肤\"产品线。",source:"搜狐美妆/第一财经",url:"https://m.sohu.com/a/1045160267_114986/"},
+        {title:"身体护理/身体祛痘品类增速持续高于面部护理",summary:"618数据显示，身体清洁品类增速亮眼，反映消费者从基础保湿向功效护肤、精准护理的升级趋势。身体祛痘/身体护理正在从细分需求成长为主流品类，Q1身体祛痘+294.4%，男士身体护理+399%。",judge:"下一个高增长品类可能在身体护理赛道，竞争格局尚未固化，存在差异化机会。可考虑为自然堂开发\"全身抗老\"或\"身体祛痘\"产品线。",source:"行业数据综合",url:""},
+        {title:"品牌从\"冲GMV\"转向\"算利润\"，货架电商回流趋势明显",summary:"618数据显示，蓝月亮、韩束、丸美等品牌集体压缩直播预算，转向货架电商。60%的消费者在大促中选择京东、淘宝/天猫等货架电商，仅10%选择直播电商。抖音正在从\"流量收割场\"转向\"品牌建设阵地\"。",judge:"直播电商的ROI正在下降，品牌正在重新分配预算结构，货架电商+内容种草的组合可能成为新标配。适度收缩纯直播预算，加大货架电商的会员运营和内容种草投入。",source:"多平台数据综合",url:""}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"代言人策略升级：从\"流量速成\"到\"长期价值\"",summary:"蔡依林代言兰蔻案例显示，品牌选择代言人正在从\"流量速成\"转向\"长期价值\"。蔡依林代表的\"抗老自律天花板\"叙事，比年轻流量更能打动进阶抗老消费者。品牌强调\"自在悦己、不被定义\"与艺人\"跨越岁月沉淀的笃定气场\"高度契合。",judge:"代言人策略可借鉴\"抗老叙事\"而非单纯流量曝光，考虑与\"逆龄女神\"型艺人合作，强化\"驭龄\"系列的抗老科技形象。",source:"新浪娱乐综合",url:""},
+        {title:"白鹿代言大盘点：16-19个代言维持稳定，OLAY续约稳定",summary:"白鹿目前维持16-19个代言，包括OLAY大中华区代言人（持续合作）、芭妮兰全球代言人（6月15日官宣）、蓝月亮至尊代言人等。网传代言娃哈哈被官方否认，金冠合作正常到期，商业价值未受实质性冲击。",judge:"关注代言市场动态，龚俊（天猫渠道）的代言价值需持续评估。蔡依林拿下兰蔻后，高端美妆代言的\"天花板\"被抬高。",source:"新浪乐迷公社",url:"https://k.sina.cn/article_7879776328_1d5abd84806801v3qs.html"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"蔡依林兰蔻代言背后，是国际大牌<em>\"抗老叙事\"</em>的再次升级——从\"成分浓度\"到\"长期自律\"，从\"流量速成\"到\"价值沉淀\"。这一趋势对国货既是压力也是机会。"},
+        {label:"课题一",text:"自然堂\"驭龄\"系列的<em>体系化科研逻辑</em>需要加速提炼，避免在成分军备竞赛中被淘汰出局。"},
+        {label:"课题二",text:"<em>医研共创</em>正从传播概念走向研发深水区，需跟进韩束动作，加速皮肤学专家资源储备。"},
+        {label:"课题三",text:"<em>身体护理</em>品类存在差异化机会，直播电商ROI下降背景下需优化渠道预算分配。"}
+      ]
+    }
+  ]
+},
+"2026-07-03": {
+  weekday:"星期五", issue:"第9期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"2026 Q1美妆护肤1160.5亿：不是失速，是重新分配",summary:"美妆护肤Q1总销售额1160.5亿元同比+10%。护肤市场向'低价刚需+高端升级'两端分化，300-1000元中间价位被挤压。品牌格局从'头部通吃'转向'多点开花'。舒缓祛痘+30.6%领跑，身体护理+20.8%。彩妆'无粉感'+107.6%。",judge:"市场分化对自然堂是双重信号——中间价位承压，必须选择极致性价比或极致专业。'驭龄'系列需明确站位，不能落在夹心层。",source:"搜狐/网易",url:"https://m.sohu.com/a/1044576795_250147/"},
+        {title:"珀莱雅双十战略启航：并购花知晓+赴港上市",summary:"珀莱雅控股花知晓51%，花知晓Q1净利润1.55亿超2025全年一半。赴港IPO推进中。但主品牌连续三季双降，Q1营收-2.29%净利-6.05%。能量蕴白999元套组李佳琦5秒售罄3万件。",judge:"珀莱雅用并购+资本解决增长瓶颈，但主品牌颓势未止。花知晓103.2%增速证明细分赛道差异化比大而全更有效。",source:"亿邦动力",url:"https://m.ebrun.com/685576.html"},
+        {title:"欧珀莱国资2亿出清35%股权：5个月亏损超去年全年",summary:"资生堂丽源2025年净亏4133万，2026前5月净亏5341万。北京丽源1.995亿挂牌转让35%股权止损。交易后日方持股75%，合资变日资控股。",judge:"中间价位合资品牌的典型命运——没有国货性价比，没有大牌高端势能，两头受挤。品牌必须靠产品和功效说话。",source:"市场部网",url:"https://www.shichangbu.com/?id=60"}
+      ]
+    },
+    { id:"competitor", title:"竞品周报", label:"Competitor Weekly", accent:"competitor",
+      items:[
+        {title:"13个新原料完成备案：珀莱雅衣康酸、巨子生物人参皂苷CK",summary:"6月15-26日共13个新原料备案。珀莱雅衣康酸（抗氧化/抗炎）、巨子生物人参皂苷CK（抗衰）、南京轩凯中华金耳发酵产物提取物。7月15日新原料备案新规施行，简化变更程序。",judge:"成分军备竞赛仍在升级。珀莱雅衣康酸+Cellergypro正在构建从抗氧化到线粒体的完整抗衰叙事。自然堂'驭龄'需有自己的独门武器。",source:"中国医药报",url:"https://cj.sina.cn/article/norm_detail?froms=ttmp&url=https%3A%2F%2Ffinance.sina.com.cn%2Fjjxw%2F2026-07-02%2Fdoc-inifkiyh2717202.shtml"},
+        {title:"嘉亨家化被要约收购：美妆代工行业整合加速",summary:"杭州拼便宜网络科技要约收购嘉亨家化21.10%股份，总价7.06亿元。嘉亨客户包括宝洁、百雀羚、上海家化、贝泰妮等。",judge:"供应链整合意味着代工资源集中，对品牌方供应链议价能力构成影响。自然堂需关注核心供应商稳定性。",source:"中国医药报",url:"https://cj.sina.cn/article/norm_detail?froms=ttmp&url=https%3A%2F%2Ffinance.sina.com.cn%2Fjjxw%2F2026-07-02%2Fdoc-inifkiyh2717202.shtml"},
+        {title:"修丽可51.1%增速领跑功效赛道，毛戈平高端彩妆+44.9%",summary:"Q1修丽可专耕院线级功效护肤增速51.1%领跑，毛戈平凭借专业大师IP+奢华养肤气垫高端彩妆+44.9%，花知晓103.2%成增长黑马。腰部品牌增速10.5%最活跃。",judge:"院线级功效护肤正在破圈，修丽可的路径说明'专业背书+功效验证'是高端化的有效路径。自然堂可参考。",source:"搜狐/网易",url:"https://m.sohu.com/a/1044576795_250147/"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"珀莱雅能量蕴白系列：618高端美白黑马",summary:"999元套组李佳琦直播间5秒售罄3万件，1-5月天猫销售额近3000万。主打高端美白，Cellergypro线粒体抗衰+美白双通路。",judge:"国货高端化已有成功案例，但前提是有独门成分和功效验证。自然堂'驭龄'系列可对标这个定价和打法。",source:"东吴证券研报",url:""},
+        {title:"珀莱雅源力MED专业线延伸医美术后",summary:"源力精华3.0+MED修护水光喷(2026.01)+医用重组胶原蛋白液体敷料/软膏(2026.01-03)。从妆字号延伸至械字号，切入医美术后修护赛道。",judge:"妆械联合是打开第二增长空间的有效路径。自然堂若布局械字号产品线，可参考珀莱雅的分阶段护理模式。",source:"东吴证券研报",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"韩国InterCHARM Korea：K-Beauty从成分导向走向科技导向",summary:"973家企业参展创历史新高。韩国企业展示Arc-poration电弧孔化技术和PEMF脉冲电磁场家用美容仪。中国供应链'质造'竞争力上升。",judge:"韩国美妆正升级到'科技体验'，家用美容仪+功效护肤组合成新范式。自然堂可关注美容仪+护肤品联动机会。",source:"搜狐",url:"https://m.sohu.com/a/1044741452_775565/"},
+        {title:"韩国医疗旅游催生术后护理市场",summary:"5月访韩外籍游客皮肤科消费1452亿韩元同比+46.3%。PharmaResearch推REJUDEX术后护理品牌，APR布局美容医疗器械。术后护理从院线向消费端扩展。",judge:"医美术后护理正在从专业渠道'溢出'到大众消费市场。自然堂若布局械字号/妆械联合产品线，可参考韩国分阶段护理模式。",source:"亚洲经济",url:"https://m.weibo.cn/detail/5316233668070027"},
+        {title:"舒缓祛痘成最大增长引擎：从急救走向日常维稳",summary:"Q1舒缓祛痘+30.6%领跑全品类，销售额36.2亿。身体祛痘+294.4%，男士身体护理+399%，面部痘痘贴+1119.3%。核心用户从31-35岁迁移至26-30岁，熬夜成核心场景。",judge:"祛痘逻辑从'治'到'养'，温和有效+不伤屏障是核心诉求。自然堂若在维稳方向有产品，可借鉴'温和体感化'营销表达。",source:"搜狐/网易",url:"https://m.sohu.com/a/1044576795_250147/"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"明星代言进入矩阵化+直播标配时代",summary:"品牌像管媒介矩阵一样管明星资源：一人一品策略(巧乐兹×3人)、明星空降直播间成标配(杨紫×蒙牛/周深×IPSA/鞠婧祎×怡丽丝尔)。直播形态从'带货'变'粉丝见面会'。",judge:"代言矩阵化=精算ROI。自然堂使用龚俊代言需明确任务定位——品牌调性/特定品类/直播转化？是否需要搭配矩阵策略？",source:"36氪",url:"https://36kr.com/p/3877921444720898"},
+        {title:"王一博官宣骆驼防晒全球首席代言人：户外+美妆跨界",summary:"7月3日官宣，推288/588元礼盒。骆驼美妆2025拼多多年销近亿级，线下300+门店设美妆专区。防晒市场2028年预计突破224亿元。",judge:"户外品牌切入美妆防晒是跨界新品类案例。防晒竞争正从传统美妆扩展到户外/运动品牌，差异化定位更重要。",source:"新浪财经",url:"https://cj.sina.cn/articles/view/7879776328/1d5abd84806801uydq"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"护肤市场正在<em>两极分化</em>——要么极致性价比，要么极致专业，中间地带正在塌陷。"},
+        {label:"课题一",text:"自然堂不能用'中端国货'定位吃老本，必须在大众价位做到<em>极致性价比</em>或在高端价位讲出<em>不可替代的科技叙事</em>。"},
+        {label:"课题二",text:"舒缓祛痘+30.6%且逻辑从'治'到'养'，<em>温和体感化</em>表达将成为品类核心卖点。"},
+        {label:"课题三",text:"代言矩阵化+直播标配化成美妆品牌标配，<em>单一代言人模式ROI将持续下降</em>。"}
+      ]
+    }
+  ]
+},
+"2026-07-02": {
+  weekday:"星期四", issue:"第8期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"自然堂冲刺IPO背后：三年营销超80亿、研发费用率仅2%",summary:"自然堂持续冲刺港股IPO，招股书显示2023-2025年营销成本累计超81亿元，研发费用率始终维持2%左右，显著低于行业平均水平。",judge:"IPO财务结构暴露'重营销轻研发'通病。市场对品牌力认知正在从'声量大'转向'研发硬'。对自然堂而言，IPO后监管更严，品控和研发补课是必答题。",source:"港湾商业观察",url:"https://m.sohu.com/a/1043920835_121211721/"},
+        {title:"618格局大变天：国际大牌强势回归，国货全线溃退",summary:"抖音美妆雅诗兰黛7.35亿登顶，赫莲娜7.03亿、海蓝之谜5.81亿。韩束从TOP1跌至第10，珀莱雅国货第一但仅排第4。天猫TOP20国际品牌占15席，修丽可弯道超车登顶。",judge:"618数据揭示冷酷现实——消费者正在用脚投票。成分党崛起、功效认知升级，让有专利池和学术背书的国际大牌重新赢得信任。小紫瓶要突围，必须讲出比珀莱雅更有说服力的科研故事。",source:"钛媒体",url:"http://m.toutiao.com/group/7657370143118443008/"},
+        {title:"国家药监局发布化妆品新原料新规：推动国货出海",summary:"新规将高风险功效范围从10类缩减为5类，加速动物替代试验方法应用，推动与国际标准接轨。",judge:"新规降低了新原料注册门槛，是弯道超车机会。如果自然堂能在窗口期备案有差异化壁垒的新原料，能建立真正的技术护城河。",source:"央视网",url:"http://jiankang.cctv.com/2026/07/01/ARTIOuHecbdeuvGLQBpetYnv260701.shtml"}
+      ]
+    },
+    { id:"competitor", title:"竞品周报", label:"Competitor Weekly", accent:"competitor",
+      items:[
+        {title:"珀莱雅6月资讯速递",summary:"618多品牌亮眼：主品牌登顶天猫美妆/护肤全榜，抖音/京东/唯品会国货护肤TOP1。获华证ESG最高等级AAA，位居行业第一。IFSCC科技贡献金质合作伙伴认证。发布首个基底膜研究白皮书。",judge:"珀莱雅的IFSCC认证+ESG AAA评级将成为国货科研竞争新门槛。自然堂需要思考如何对标。",source:"同花顺",url:"http://m.toutiao.com/group/7657483531924406827/"},
+        {title:"欧莱雅VivaTech十年：AI战略全面升级",summary:"发布Longevity AI Cloud分析260+项皮肤生物标志物，Hair Digital Twin分子筛选效率提升3倍，Beauty Knowledge Graph将116年专业知识AI化。与OpenAI、英伟达达成战略合作。",judge:"欧莱雅战略方向很明确——从'修已发生的衰老'转向'预测并干预未发生的衰老'。小紫瓶'细胞充能=唤醒线粒体'的定位与此趋势天然契合，但需更系统的科研叙事支撑。",source:"凤凰网",url:"https://finance.ifeng.com/c/8uPRq3UEpLZ"},
+        {title:"自然堂618 AI投放新解法：精准识别'韧肌抗老'意图",summary:"借助阿里妈妈AI万相识别出'熬夜早起补救''敏感肌抗老'等细分意图，提炼'韧肌抗老'趋势赛道，实现天猫旗舰店成交额同比+30%，新客增长70%。",judge:"AI正在重塑投放逻辑——从'买流量'到'买对的人'。喜默因®的科研故事完全可以借助AI能力找到更精准的'疲惫式衰老'目标人群，实现从抗老大词到细分场景的转化。",source:"亿邦动力",url:"http://m.toutiao.com/group/7657467509578170918/"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"自然堂超抗小紫瓶新品发布",summary:"自然堂超抗小紫瓶正式发布，以喜默因®为芯，主打'疲惫式衰老'细胞充能解决方案。直击线粒体PGC-1α靶点，喜默因超抗肽渗透力是传统四肽的8.5倍。",judge:"小紫瓶新品正在抢占'细胞充能'心智，与国际大牌的长寿科学叙事形成差异化竞争。需要持续强化科研背书。",source:"界面新闻",url:"https://m.jiemian.com/article/14680616.html"},
+        {title:"椰尔AI定制护肤引爆美博会",summary:"椰尔展示'高光谱AI皮肤检测+智能配方调配'组合，消费者数秒即可获得个人专属'数字皮肤档案'，系统实时调配专属精华或面霜。AI美妆正在从概念走向大规模落地。",judge:"个性化护肤风口已至。自然堂可以先从'肤质分型'科普内容切入，占领'精准护肤'心智。",source:"千龙网",url:"https://china.qianlong.com/2026/0701/8691095.shtml"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"医美护肤从'术后修护'升级为'全周期管理'",summary:"英敏特报告显示，医美市场正在从'项目消费'转向'长期皮肤管理'：76%消费者会在医美项目前调整护肤方式，74%希望品牌明确区分术前/术后产品功效。",judge:"医美护肤是快速扩容的蓝海市场。小紫瓶可以讲'居家护肤+轻医美'的组合故事，如'小紫瓶×光子嫩肤术后修护'场景内容。",source:"英敏特",url:"https://m.sohu.com/a/1044268647_120714217/"},
+        {title:"长寿科学持续升温：线粒体自噬成为下一个'玻色因'",summary:"雅诗兰黛、兰蔻、欧莱雅三大巨头齐齐布局长寿护肤。雅诗兰黛SIRTIVITY-LP™靶向sirtuin长寿蛋白，兰蔻Mitopure®线粒体自噬，欧莱雅Longevity AI Cloud预测式护肤。",judge:"小紫瓶'细胞充能=唤醒线粒体'的科学与长寿护肤趋势高度契合。需要思考如何与'长寿科学'趋势建立认知链接，避免被国际大牌抢占科学抗老定义权。",source:"综合",url:""},
+        {title:"向佐'审丑经济学'：穿女装直播GMV超5亿",summary:"向佐穿女装直播带货，首场两天GMV 5000-7500万，三个月累计5亿。直播间以赫莲娜、雅诗兰黛等大牌美妆为主，靠'豪门身份'为高客单做信任背书。",judge:"审丑变现的本质是'反套路'带来的注意力经济。不可复制且有品牌调性风险。自然堂更适合走'正向情绪价值'路线，如'职场充能站''熬夜党加油站'。",source:"新浪娱乐",url:"https://k.sina.cn/article_7879776328_1d5abd84806801tt12.html"}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"明星营销360方法论：轻量化合作成主流",summary:"巨量引擎发布明星营销方法论，星图入驻明星超5000位，上半年合作金额同比增长160%。最低10万级预算即可启动轻量化合作，AI工具实现'选人准、素材全、转化精'。",judge:"龚俊代言的长期价值需要持续释放。可以考虑将年度代言拆解为节点性轻量合作，既控制成本又保持热度。",source:"网易",url:"https://www.163.com/dy/article/L0OIFEO1052287C5.html"},
+        {title:"可复美场景化营销：晒后退红心智份额环比+6%",summary:"可复美基于抖音场景化营销，围绕夏季'晒后退红'需求，串联明星官宣、旅行内容、海边派样与夏季主题直播，联合央视网背书，推动品牌退红心智行业份额环比提升6%，胶原棒GMV同比增长58%。",judge:"场景化营销+权威媒体背书=快速建立品类心智。小紫瓶可以参考'晒后退红'逻辑，打'熬夜后充能'的类似组合拳。",source:"财经头条",url:"https://t.cj.sina.cn/articles/view/7000397102/1a141952e0010258y4"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"618后国货美妆的分化窗口期已至。国际大牌凭借'专利池+学术背书'强势回归，科研差距正在拉大。"},
+        {label:"课题一",text:"自然堂IPO暴露的'重营销轻研发'问题不是个案，国货需要集体<em>科研补课</em>。"},
+        {label:"课题二",text:"小紫瓶'细胞充能'定位与长寿科学趋势<em>天然契合</em>，但需更系统的学术叙事支撑。"},
+        {label:"课题三",text:"ESG+科研将成为国货品牌<em>新竞争门槛</em>，珀莱雅已率先拿到入场券。"}
+      ]
+    }
+  ]
+},"2026-07-01": {
+  weekday:"星期三", issue:"第7期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"618全网美妆战报：品牌格局大洗牌",summary:"抖音TOP3：雅诗兰黛7.35亿(+83%) > 赫莲娜7.03亿(+44%) > 海蓝之谜5.81亿。天猫：修丽可TOP1 > 雅诗兰黛 > 珀莱雅 > 兰蔻 > SK-II。京东TOP10全被外资包揽。国际大牌获客成本飙至300-500元/人(+25%)。",judge:"618暴露了谁在涨价找死。下半年'品牌力'取代'折扣力'，低端白牌正在被清退，国货往中高端走的窗口打开了。",source:"36氪",url:"https://36kr.com/p/3867926436281224"},
+        {title:"Q1美妆市场1160亿 · 同比+6.2%",summary:"市场回暖但增速放缓。'质价比'取代'性价比'成消费主旋律。面部洗护占化妆品GMV 63.57%，增速18.52%。抖音百万级国际美妆品牌同比+67%。",judge:"回暖但放缓，高端化是唯一出路。存量博弈期资源集中度会越来越高，营销预算要花在刀刃上。",source:"界面新闻",url:"https://m.jiemian.com/article/14665078.html"},
+        {title:"抖音高端美妆红利窗口",summary:"平台主动向品牌高端化转型，品牌自播占比持续攀升，达播占比下降。韩束主动收缩达播占比至20%以下，品牌回流天猫/京东。",judge:"窗口期不等人，高端占位要趁早。现在不入场，以后门槛更高。",source:"网易",url:"http://m.163.com/dy/article/L0C2D8I00556KA6B.html"}
+      ]
+    },
+    { id:"competitor", title:"竞品周报", label:"Competitor Weekly", accent:"competitor",
+      items:[
+        {title:"珀莱雅收购花知晓：多品牌版图再扩张",summary:"布局年轻女性市场与海外渠道，从单品牌向品牌集团转型。同时设立CGO打通全链路增长，决策链路缩短，组织效率升级。",judge:"珀莱雅野心升级到'中国版资生堂'，单品竞争升级为集团竞争。自然堂需要思考多品牌故事。",source:"36氪",url:"https://36kr.com/p/3874265461822467"},
+        {title:"韩束全面进军医美",summary:"'医研一体'战略，构建研发-临床-产品闭环。从大众护肤向功效护肤延伸。郑志忠代言强化专业形象。",judge:"自然堂要盯紧这个方向。韩束在找第二增长曲线，医美赛道竞争会加剧。",source:"千龙网",url:"https://china.qianlong.com/2026/0626/8688801.shtml"},
+        {title:"618竞品策略对比",summary:"国际大牌：雅诗兰黛用JCAD论文建学术话语权，兰蔻Mitopure®首次落地，修丽可专业线+医生背书登顶天猫。国货：珀莱雅红宝石次抛+胶原弹润199元，毛戈平×熊猫文创销售额+46%。",judge:"国际大牌'定义怎么测'而非'加了什么'。国货功效细分+性价比策略有效，但需要建立自己的叙事壁垒。",source:"综合",url:""}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"龚俊×自然堂618战报",summary:"全渠道GMV同比+40%，天猫男士线销量创新高。代言人商业价值充分释放，天猫资源可充分利用。",judge:"带货力已验证，天猫资源要用足。龚俊代言价值明确，下半年继续深挖。",source:"经济参考报",url:"https://www.cet.com.cn/wzsy/cyzx/10420836.shtml"},
+        {title:"涂抹胶原新品潮",summary:"碧妍思活性胶原棒298元/7支，赫莲娜胶原精华2680元/30ml，珀莱雅胶原弹润199元/30ml，可复美类人胶原棒主攻医美术后。趋势：活性胶原>重组胶原，抗炎+抗衰双效成标配。",judge:"有储备就抢占心智，窗口期有限。小紫瓶可考虑叠加胶原场景。",source:"综合",url:""},
+        {title:"兰蔻Absolue长寿护肤系列",summary:"与瑞士Timeline合作，Mitopure®(尿石素A)98.5%纯微粉化。三阶段模型：Anticipate/Intercept/Reset。配套Cell BioPrint™ AI皮肤检测。",judge:"线粒体自噬从补剂到涂抹的首次全球化落地。'长寿护肤'门槛刚立起，需关注跟风。",source:"Daily Mail",url:"https://www.dailymail.com/buyline/beauty/article-15870525/new-Lancome-Longevity-skincare-line-focuses-old-skin-really-looks.html"}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"PDRN从C位成分→基础设施化",summary:"2026年至今931个备案新品，4000+品牌入场，四年线上增长270倍。正走烟酰胺、B5的老路：先爆→基础化→不再承担溢价。韩束/珀莱雅/华熙/林清轩全面布局。",judge:"正在复制胶原蛋白路径。建议关注但不急于押注，观察窗口6-12个月。如使用PDRN需重新评估稀缺性。",source:"36氪",url:"https://36kr.com/p/3855192475892357"},
+        {title:"长寿科学(Longevity)成最强趋势",summary:"雅诗兰黛SIRTIVITY-LP™靶向sirtuin长寿蛋白+两篇JCAD论文。兰蔻Mitopure®线粒体自噬。Dior分周程序。欧莱雅财报称'当下势头最强的行业趋势'。美国长寿类护肤消费占比从7%(2023)→12%(2026)。",judge:"小紫瓶'抗疲老'天然契合长寿叙事，喜默因®可与线粒体概念对接。",source:"综合",url:""},
+        {title:"功效温和化+消费心理转变",summary:"'猛药'耐受度下降，温和高效成新诉求。消费者从'越强越好'到'更稳更适合'。问题复合化(斑点+细纹+松弛+干燥叠加)。",judge:"敏感肌人群扩大，配方策略要调整。温和≠低效。竞争力产品需：成分路径清晰+安全检测完整+肤质适配明确。",source:"界面新闻",url:"https://m.jiemian.com/article/14563477.html"},
+        {title:"外泌体成分持续升温",summary:"大研生医15项专利脐带间质干细胞来源。薇佳外泌体+藻针。TTM双活性外泌体。超1/3美国医美机构推出外泌体护理项目。处于爆发前期。",judge:"AI+美妆的下一个阶段。需要更多临床数据支撑，适合'科技抗老'定位品牌。",source:"综合",url:""}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"毛戈平×熊猫基地文创",summary:"系列名'幻花御境'，灵感来自大熊猫'和花'。定位：庄重之外的可爱，仪式之外的日常，精致之外的松弛。产品全线联动，成都发布会。效果：彩妆TOP1，销售额+46%。",judge:"从'贴IP'升级到'文化共创'。用IP性格特质对接品牌调性。小紫瓶可考虑'松弛感/不焦虑'类IP联名。",source:"综合",url:""},
+        {title:"抖音美妆「粉彩妆」趋势IP",summary:"话题曝光55亿，首次联动YSL、PRADA。YSL'勿扰酒店'上海+PRADA'春日集市'深圳。模式创新：平台孵化趋势→品牌借势。",judge:"小紫瓶'抗疲老'可对接'熬夜急救'等抖音趋势IP。关注平台造风机会。",source:"综合",url:""},
+        {title:"屈臣氏×欧莱雅深度共创",summary:"首款共同研发独家产品(樱桃限定定妆喷雾)。从'传统分销'→'深度共创'。'膜+粉+膜'三层结构+进口微米级喷头。75%顾客更倾向购买限量版。",judge:"零售商不只是渠道，而是共创伙伴。限量版+限定包装=社交货币。",source:"综合",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"618后进入<em>'后大促时代'</em>，赢家是品牌力最强的。低端白牌出清，高端外资回流，国货分化加剧。"},
+        {label:"课题一",text:"珀莱雅集团化加速 → 自然堂的<em>多品牌故事</em>是什么？单品牌天花板在逼近。"},
+        {label:"课题二",text:"与其追新成分，不如把<em>已有成分讲出新故事</em>。PDRN在复制胶原蛋白路径，不要跟风。"},
+        {label:"课题三",text:"抖音高端化窗口 → <em>现在不占位，以后门槛更高</em>。平台正从流量逻辑转向品牌逻辑。"}
+      ]
+    }
+  ]
+},
+"2026-06-30": {
+  weekday:"星期一", issue:"第6期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"618国际大牌反攻真相",summary:"国际高端美妆618不靠降价，靠叙事升维。雅诗兰黛7.35亿登顶抖音(+83%)，赫莲娜7.03亿(+44%)，海蓝之谜5.81亿。天猫修丽可从第6跃升至TOP1，最大黑马。",judge:"外资品牌用专利池和学术标准建立壁垒，不再拼价格而是拼叙事权。国货需要思考如何在INCI表之外构建差异化壁垒。",source:"36氪",url:"https://36kr.com/p/3867926436281224"},
+        {title:"PDRN成分爆发：931个新品备案",summary:"2026年至今含DNA钠(PDRN)备案新品达931个，4000+品牌入场，四年线上增长近270倍。韩束、珀莱雅、华熙生物、林清轩全面布局。",judge:"PDRN正走烟酰胺、B5走过的路：先爆→基础化→不再承担溢价。建议关注但不急于押注，观察窗口还有6-12个月。",source:"36氪",url:"https://36kr.com/p/3855192475892357"},
+        {title:"涂抹胶原进阶：活性+抗炎双效成主流",summary:"碧妍思闪修活性胶原棒(298元/7支)、赫莲娜胶原焕活精华(2680元/30ml)、珀莱雅胶原弹润精华(199元/30ml)。趋势从重组胶原转向活性胶原，叠加抗炎功效。",judge:"Cell期刊证实慢性炎症是衰老核心标志。小紫瓶可考虑叠加胶原场景，抢占心智窗口期有限。",source:"综合",url:""}
+      ]
+    },
+    { id:"competitor", title:"竞品周报", label:"Competitor Weekly", accent:"competitor",
+      items:[
+        {title:"雅诗兰黛白金系列：长寿科学叙事标杆",summary:"SIRTIVITY-LP™靶向sirtuin长寿蛋白家族，18年深耕。两篇JCAD同行评审论文背书，12周多族裔临床验证，2800+样本可视年龄评估模型。",judge:"'定义怎么测'而非'加了什么'，建立学术话语权。小紫瓶'抗疲老'定位需要更多此类学术背书。",source:"综合",url:""},
+        {title:"珀莱雅：红宝石次抛+胶原弹润双管齐下",summary:"天猫TOP3，抖音TOP级别。红宝石次抛采用双环肽-161+酶肽，胶原弹润精华199元/30ml。618期间销售额同比大幅增长。",judge:"珀莱雅在功效细分+性价比路线上持续发力，同时设立CGO打通全链路增长，组织升级匹配扩张野心。",source:"综合",url:""},
+        {title:"毛戈平×熊猫文创：彩妆TOP1",summary:"'幻花御境'系列灵感来自大熊猫'和花'，定位松弛感东方美学。底妆+眼妆+唇颊全线联动，成都发布会。销售额同比+46%，彩妆类目登顶。",judge:"从'贴IP'升级到'文化共创'，用IP性格特质对接品牌调性，值得借鉴。",source:"综合",url:""},
+        {title:"韩束：从抖音冠军到全面进军医美",summary:"韩束从连续17个月抖音冠军位置滑落，但战略转向医美赛道。'医研一体'战略，构建研发-临床-产品闭环，郑志忠代言强化专业形象。",judge:"韩束在找第二增长曲线，医美赛道竞争会加剧。自然堂要盯紧这个方向。",source:"千龙网",url:"https://china.qianlong.com/2026/0626/8688801.shtml"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"兰蔻Absolue Longevity MD长寿护肤系列",summary:"与瑞士Timeline实验室合作，Mitopure®(98.5%纯微粉化尿石素A)首次大规模引入护肤品。三阶段模型+配套Cell BioPrint™ AI皮肤检测。",judge:"线粒体自噬从补剂到涂抹的首次全球化落地。'长寿护肤'门槛刚立起，需关注是否有更多品牌跟进。",source:"Daily Mail",url:"https://www.dailymail.com/buyline/beauty/article-15870525/new-Lancome-Longevity-skincare-line-focuses-old-skin-really-looks.html"},
+        {title:"欧诗漫光玛吉次抛精华",summary:"双靶向调控胶原母细胞+黑素母细胞，诺奖同源M6P+温和A醇HPR。首创7D胶原(覆盖1/3/5/17/21等7种型)。24小时胶原新生率+105%，249.9元/45支。",judge:"7D胶原概念是差异化亮点，珍白因Pro抑黑效率是烟酰胺10.3倍，值得研究对标。",source:"综合",url:""},
+        {title:"屈臣氏×欧莱雅共创定妆喷雾",summary:"首款零售商与品牌共同研发独家产品，樱桃限定。'膜+粉+膜'三层结构+进口微米级喷头(颗粒直径小30%)，16小时哑光定妆。计划登陆亚洲+欧洲多国。",judge:"零售商从渠道变共创伙伴，这种模式值得关注。限量版+限定包装=社交货币。",source:"综合",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"长寿科学：从'抗老'到'长寿'的叙事升级",summary:"核心理念从'修复可见损伤'转向'预防细胞级衰老'。欧莱雅集团财报称'当下势头最强的行业趋势'。美国长寿类护肤消费占比从7%(2023)→12%(2026)。65%美国消费者比一年前更注重自我健康养护。",judge:"小紫瓶'抗疲老'定位天然契合长寿护肤叙事，喜默因®酵母的'细胞级新生'故事可与线粒体自噬概念对接。",source:"综合",url:""},
+        {title:"程序化护肤：绑定长期使用提升LTV",summary:"Dior安瓶分周护理程序，兰蔻Anticipate/Intercept/Reset三阶段模型。核心逻辑：从'单品'→'程序/系统'，提高客单价、增强用户粘性、建立使用习惯。",judge:"程序化护肤是提高复购率和用户粘性的好模式，值得小紫瓶考虑分阶段使用方案。",source:"综合",url:""},
+        {title:"外泌体成分：爆发前期",summary:"大研生医外泌体保湿修护精华(15项专利脐带间质干细胞来源)、薇佳超波肽外泌体藻针精华乳、TTM双活性外泌体超级安瓶。超1/3美国医美机构推出外泌体护理项目。",judge:"处于爆发前期，需要更多临床数据支撑，适合'科技抗老'定位品牌关注布局。",source:"综合",url:""}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"抖音美妆「粉彩妆」趋势IP：55亿曝光",summary:"首次联动YSL、PRADA两大奢牌。YSL'勿扰酒店'上海西岸梦中心活动，30+达人打卡→试用→对镜拍转场。PRADA'春日集市'深圳万象天地。8位头部达人担任趋势发起人。",judge:"平台孵化趋势→品牌借势的双向赋能模式，三重突破(线上线下全域联动+达人产出玩法视频上热点+平台与品牌双向赋能)。",source:"综合",url:""},
+        {title:"疗愈系联名潮：从'可爱'到'疗愈'",summary:"LUSH×超级玛利欧、护妍天使×飞天小女警、媚比琳×Hello Kitty、FreshO2×三丽鸥、新肌霓×马来貘。共同特点：产品+情感+场景全面联动，限定+只送不卖=稀缺性=社交传播。",judge:"情感价值>功能价值，疗愈感>可爱感。小紫瓶可考虑打造'熬夜党/加班人'专属IP或联名。",source:"综合",url:""}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"趋势研判",text:"<em>长寿科学</em>是2026下半年最强趋势，小紫瓶'抗疲老'定位天然契合。"},
+        {label:"竞争格局",text:"国际大牌用<em>专利池+学术标准</em>建壁垒，国货需要在INCI表之外找到叙事筹码。"},
+        {label:"产品机会",text:"涂抹胶原+抗炎双效是新增长点，<em>程序化护肤</em>是提高复购率的好模式。"},
+        {label:"营销启示",text:"从'贴IP'到'文化共创'，从'价格战'到'叙事战'，<em>情感价值>功能价值</em>。"}
+      ]
+    }
+  ]
+},
+"2026-07-08": {
+  weekday:"星期三", issue:"第14期",
+  panels:[
+    { id:"daily", title:"行业日报", label:"Daily Report", accent:"daily",
+      items:[
+        {title:"化妆品新原料新规7月15日施行：5类原料松绑，申报省350万+2年",summary:"6月25日，国家药监局正式公布新修订的《化妆品新原料注册备案及资料管理规定》，自7月15日起施行。防脱发、祛痘、抗皱、去屑、除臭5类功效原料被移出较高风险清单，备案周期缩短2-3年，单原料可节省350万试验成本。2026年上半年全国备案新原料116款，同比+43%，浙江企业同比暴增300%+。",judge:"国货品牌自研原料的制度成本大幅降低，'谁拥有自己的原料IP'将成为下一阶段竞争核心。抗皱、防脱赛道将迎来新一轮成分军备竞赛。",source:"国家药监局",url:"http://m.toutiao.com/group/7659602378450059816/"},
+        {title:"开云集团官宣Gucci×L'Oréal 50年独家美妆授权",summary:"开云集团宣布Gucci美妆与欧莱雅签订50年独家授权协议，2027年中生效，现任合作伙伴Coty提前1年解约获赔4亿美元。欧莱雅获得Gucci美妆后，将直接挑战LVMH和雅诗兰黛集团的高端美妆格局。",judge:"高端美妆阵营再添强敌，国货在300-800元价格带的压力持续加大。小紫瓶的'抗疲老'差异化定位需加速建立科研护城河。",source:"Kering官网",url:"https://uk.advfn.com/stock-market/BIT/1KER/share-news/Kering-announces-that-Gucci-and-LOreal-have-entered-into-a-50-year-exclusive-bea/98882283"},
+        {title:"自然堂亮相浦东机场免税'国潮专区'，618即时零售同比增长88%",summary:"浦东机场T2航站楼推出全国单机场规模最大的免税店国货专区（200㎡+），自然堂与HBN、润百颜、薇诺娜等10+国货品牌集体入驻。618即时零售战报：美团闪购同比+88%，淘宝闪购同比+30倍+，广州黄埔仓销量破100万+。",judge:"国货免税渠道正在成为品牌高端化叙事的新阵地。需持续运营，但也需警惕陷入'只有出境旅客买'的局限性。",source:"新民晚报",url:"http://m.toutiao.com/group/7659622192011674112/"}
+      ]
+    },
+    { id:"competitor", title:"竞品追踪", label:"Competitor", accent:"competitor",
+      items:[
+        {title:"倩碧全球首款重组PDRN新品发布",summary:"7月3日倩碧于雅诗兰黛中国创新研发中心发布全球首款重组PDRN应用——CX肌源深修水光系列。依托AI测序筛选+生物工程重组技术，实现PDRN的代际跨越，具备舒缓敏感、胶原促生、屏障修护多靶点效能。",judge:"PDRN正式进入'主流大牌应用'阶段，从医美院线向家用护肤的场景迁移加速。合成生物学路径成为PDRN规模化的关键。",source:"WWD",url:"https://m.weibo.cn/detail/5317988513220497"},
+        {title:"InterCHARM Korea 2026：医美日常化+屏障修护成主流",summary:"7月1-3日第23届韩国首尔国际美容展举办，汇聚千家参展企业、1729个展位，4000+海外买家到场。核心趋势：PDRN/外泌体/胜肽从院线向家用护肤迁移，屏障修护深化。",judge:"K-beauty的技术迭代速度持续加快，国内品牌在'家用医美级护肤'赛道面临更大竞争压力。",source:"InterCHARM",url:"https://m.sohu.com/a/1047109972_775565/"},
+        {title:"达播退潮、店播登台：2026美妆直播电商权力转移",summary:"Q1美妆TOP20品牌85%缩减达人推广预算。超头主播生态深度重构，达播占比可能降至20%甚至更低。头部达播向'超级商超'转型（Costco化），店播定位从'备胎'升格为'底盘'。",judge:"品牌自播体系建设进入深水区，纯粹依赖达人带货的策略正在失效。自然堂618即时零售高增长印证了店播+即时零售策略的正确性。",source:"美研咨",url:"https://m.sohu.com/a/1046893994_122928744/"}
+      ]
+    },
+    { id:"launch", title:"产品上新", label:"Product Launch", accent:"launch",
+      items:[
+        {title:"POLA B.A眼霜新品：主打'全域ハリ'系统性抗老",summary:"POLA推出B.Aアイゾーンクリーム眼霜新品，主打'全域ハリ（弹力）'，针对眼袋-眼窝脂肪-眼轮肌的系统性改善。",judge:"日系护肤持续深耕'精准分区护理'，从单品走向系统性解决方案。",source:"Cosme&Beauty",url:"https://www.mylifenews.net/cosme-beauty/"},
+        {title:"资生堂安耐晒2026新款：粉色款主打美白防晒二合一",summary:"安耐晒2026新款面部防晒上市，粉色款添加m-传明酸+茶叶提取物，主打美白防晒二合一功效。",judge:"防晒+美白的概念融合成为新品趋势，值得关注。",source:"综合",url:""}
+      ]
+    },
+    { id:"trend", title:"趋势动向", label:"Trend Report", accent:"trend",
+      items:[
+        {title:"韩国药企加码药店药妆渠道，50-60岁消费者成新靶点",summary:"韩美科学、东国制药等韩国药企正在加码药店药妆渠道，聚焦50-60岁消费者及医美术后护理需求。Humedix与BaroPharm合作，将医美术后护理引入药店渠道。",judge:"韩国药妆渠道正在从'药'向'美'延伸，专业服务+成分信任成为差异化壁垒。薇诺娜已登顶美团即时零售护肤TOP1验证了这一路径的可行性。",source:"韩媒",url:"https://m.weibo.cn/detail/5318090181053716"},
+        {title:"重组PDRN从高端概念走向主流量产",summary:"倩碧全球首款重组PDRN新品发布标志着PDRN正式进入主流大牌应用阶段。合成生物学路径成为PDRN规模化的关键，解决传统提取的供应波动和成本问题。",judge:"重组PDRN将在Q3-Q4完成从'高端概念'到'主流成分'的转折。自然堂需评估重组PDRN的战略优先级。",source:"WWD",url:""}
+      ]
+    },
+    { id:"creative", title:"创意玩法", label:"Creative", accent:"creative",
+      items:[
+        {title:"爱茉莉太平洋'K-Beauty专列'沉浸式体验",summary:"爱茉莉太平洋打造沉浸式K-Beauty体验空间，携雪花秀、兰芝、吕、悦诗风吟等六大品牌集体亮相。展台之下，嘉定研发实验室正推进配方迭代和定制化香精开发，推动进口产品'精准适配'中国消费者。",judge:"K-beauty正在从'原样引入'转向'精准适配'，值得借鉴。",source:"上观新闻",url:"https://m.thepaper.cn/newsDetail_forward_33538634"}
+      ]
+    },
+    { id:"special", title:"破茧专题", label:"Special Report", accent:"special", insights:true,
+      items:[
+        {label:"核心判断",text:"化妆品新原料新规7月15日施行，这是近5年对美妆行业影响最深远的政策调整之一。"},
+        {label:"课题一",text:"新规将加速<em>'原料军备竞赛2.0'</em>——从'成分概念堆砌'升级为'自研原料IP争夺'。"},
+        {label:"课题二",text:"自然堂必须加速<em>喜默因、喜马拉雅原料</em>等核心资产的备案保护和科学叙事，否则将被边缘化。"},
+        {label:"课题三",text:"<em>达播退潮、店播崛起</em>趋势确认，自然堂618即时零售策略正确，需持续加大投入。"}
+      ]
+    }
+  ]
+}
+};
+
+/* ═══ BRANDS ═══ */
+const BRANDS=[
+  {cn:'赫莲娜',en:'HR',img:'https://s.coze.cn/image/OTKhksrUOBU/'},
+  {cn:'珀莱雅',en:'PROYA',img:'https://s.coze.cn/image/wPDiJPlAP6Q/'},
+  {cn:'Olay',en:'OLAY',img:'https://s.coze.cn/image/WpSZPksnjAA/'},
+  {cn:'兰蔻',en:'LANCÔME',img:'https://s.coze.cn/image/lW3GvbIaeNA/'},
+  {cn:'雅诗兰黛',en:'ESTÉE LAUDER',img:'https://s.coze.cn/image/vuVMk_quNy8/'},
+  {cn:'HBN',en:'HBN',img:'https://s.coze.cn/image/OjEvLqoOwdg/'},
+  {cn:'梵芙尼',en:'FUMFUNY',img:'https://s.coze.cn/image/ap_WeEPUWgw/'},
+  {cn:'轻氧',en:'LIGHT O₂'},
+  {cn:'修丽可',en:'SKINCEUTICALS',img:'https://s.coze.cn/image/A4Sm6VYAOIc/'},
+  {cn:'欧莱雅',en:"L'ORÉAL",img:'https://s.coze.cn/image/nKLZnD80FfU/'},
+  {cn:'SK-II',en:'SK-II',img:'https://s.coze.cn/image/OWdFw128up8/'},
+  {cn:'丸美',en:'MARUBI',img:'https://s.coze.cn/image/g2K2p4uBB2o/'},
+  {cn:'倾颜',en:'QINGYAN'},
+  {cn:'Vely Vely',en:'VELY VELY'},
+  {cn:'林清轩',en:'FOREST CABIN',img:'https://s.coze.cn/image/tMNgw32FKhc/'},
+  {cn:'Flapper',en:'FLAPPER'},
+  {cn:'可复美',en:'KEFUMEI',img:'https://s.coze.cn/image/k3boiK4k_o0/'},
+  {cn:'韩束',en:'KANS',img:'https://s.coze.cn/image/Z6D-DfqtrwA/'},
+  {cn:'海蓝之谜',en:'LA MER',img:'https://s.coze.cn/image/-uc3cnetbF8/'},
+  {cn:'迷奇',en:'MIRACLE',img:'https://s.coze.cn/image/UzxuDFb_9ss/'},
+  {cn:'百雀羚',en:'PECHOIN',img:'https://s.coze.cn/image/DDeNVYJsXNI/'},
+  {cn:'谷雨',en:'GUYU'}
+];
+
+/* ═══ STATE ═══ */
+const todayStr="2026-07-15";
+let currentDate=todayStr;
+let currentSlide=0;
+let totalSlides=0;
+let searchQuery="";
+
+/* ═══ RENDER BRANDS ═══ */
+function renderBrands(){
+  document.getElementById('brandGrid').innerHTML=BRANDS.map(b=>{
+    if(b.img)return `<div class="brand-card" title="${b.cn}\"><img src=\"${b.img}" alt="${b.en}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=b-fallback><div class=b-en>${b.en}</div><div class=b-cn>${b.cn}</div></div>'\"/></div>`;
+    return `<div class=\"brand-card" title="${b.cn}\"><div class=\"b-fallback\"><div class=b-en>${b.en}</div><div class=b-cn>${b.cn}</div></div></div>`;
+  }).join('');
+}
+
+/* ═══ RENDER DATE DROPDOWN ═══ */
+function renderDateDropdown(){
+  const dates=Object.keys(DATA_ARCHIVE).sort().reverse();
+  const dd=document.getElementById('dateDropdown');
+  dd.innerHTML=dates.map(d=>{
+    const label=d===todayStr?`今天 · ${d}`:d;
+    const active=d===currentDate?' active':'';
+    return `<div class=\"dd-item${active}" onclick="event.stopPropagation();showDate('${d}')\">${label}</div>`;
+  }).join('');
+}
+
+/* ═══ BUILD SLIDE HTML ═══ */
+function buildSlideHTML(panel, idx){
+  const q=searchQuery.toLowerCase().trim();
+  let filteredItems=panel.items.slice(0,3);
+  if(q){
+    filteredItems=panel.items.slice(0,3).filter(item=>{
+      const text=(item.title||'')+(item.summary||'')+(item.judge||'')+(item.text||'')+(item.label||'');
+      return text.toLowerCase().includes(q);
+    });
+  }
+
+  let html=`<div class=\"carousel-slide${idx===currentSlide?' active':''}" data-idx="${idx}\">`;
+
+  // Left image
+  html+=`<div class=\"slide-img\">`;
+  html+=`<div class=\"slide-accent-bar" style="background:${ACCENT_MAP[panel.accent]||'#ccc'}\"></div>`;
+  html+=`<div class=\"img-bg\">`;
+  html+=`<div class=\"emoji\">${PANEL_IMAGES[panel.id]||'📄'}</div>`;
+  html+=`<div class=\"img-label\">${PANEL_COVER_TEXTS[panel.id]||''}</div>`;
+  html+=`<div class=\"img-date\">${currentDate.replace(/-/g,'.')}</div>`;
+  html+=`</div></div>`;
+
+  // Right content
+  html+=`<div class=\"slide-content\">`;
+  html+=`<div class=\"slide-head\"><div class=\"sh-left\"><span class=\"sh-label\">${panel.label}</span><span class=\"sh-title\">${panel.title}</span></div><span class=\"sh-count\">${filteredItems.length} 条情报</span></div>`;
+  html+=`<div class=\"slide-body\">`;
+
+  filteredItems.forEach(item=>{
+    const isMatch=q&&((item.title||'')+(item.summary||'')+(item.judge||'')+(item.text||'')+(item.label||'')).toLowerCase().includes(q);
+    if(panel.insights){
+      html+=`<div class=\"insight-item${isMatch?' match':''}\"><div class=\"ii-label\">${item.label}</div><div class=\"ii-text\">${item.text}</div></div>`;
+    }else{
+      html+=`<div class=\"news-item${isMatch?' match':''}\">`;
+      html+=`<div class=\"ni-title\">${item.title}</div>`;
+      if(item.summary)html+=`<div class=\"ni-summary\">${item.summary}</div>`;
+      if(item.judge)html+=`<div class=\"ni-judge\">${item.judge}</div>`;
+      if(item.source&&item.url)html+=`<a href=\"${item.url}" target="_blank" class="ni-source\">${item.source}</a>`;
+      html+=`</div>`;
+    }
+  });
+
+  html+=`</div>`;
+  // Feishu report link
+  const feishuUrl = FEISHU_URLS[panel.id];
+  if(feishuUrl){
+    html+=`<a href=\"${feishuUrl}" target="_blank" class="slide-report\"><svg viewBox=\"0 0 24 24" fill="none" stroke="currentColor" stroke-width="2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16" y1="13" x2="8" y2="13\"/><line x1=\"16" y1="17" x2="8" y2="17\"/><polyline points=\"10 9 9 9 8 9\"/></svg>查看完整报告 →</a>`;
+  }
+  html+=`</div></div>`;
+  return html;
+}
+
+/* ═══ RENDER CAROUSEL ═══ */
+function renderCarousel(){
+  const data=DATA_ARCHIVE[currentDate];
+  if(!data){
+    document.getElementById('carouselTrack').innerHTML='<div class=\"no-results\">该日期暂无数据</div>';
+    document.getElementById('carouselDots').innerHTML='';
+    return;
+  }
+
+  const q=searchQuery.toLowerCase().trim();
+  let visiblePanels=[];
+  data.panels.forEach((panel,idx)=>{
+    const top3=panel.items.slice(0,3);
+    if(q){
+      const hasMatch=top3.some(item=>{
+        const text=(item.title||'')+(item.summary||'')+(item.judge||'')+(item.text||'')+(item.label||'');
+        return text.toLowerCase().includes(q);
+      });
+      if(!hasMatch)return;
+    }
+    visiblePanels.push({panel,idx});
+  });
+
+  if(!visiblePanels.length){
+    document.getElementById('carouselTrack').innerHTML='<div class=\"no-results\">没有找到匹配的内容</div>';
+    document.getElementById('carouselDots').innerHTML='';
+    return;
+  }
+
+  // Clamp currentSlide
+  totalSlides=visiblePanels.length;
+  if(currentSlide>=totalSlides)currentSlide=0;
+
+  const track=document.getElementById('carouselTrack');
+  track.innerHTML=visiblePanels.map(v=>buildSlideHTML(v.panel,v.idx)).join('');
+
+  // Dots
+  const dots=document.getElementById('carouselDots');
+  dots.innerHTML=visiblePanels.map((_,i)=>`<button class=\"carousel-dot${i===currentSlide?' active':''}" onclick="goSlide(${i})\"></button>`).join('');
+
+  // Sync nav tab
+  const activeIdx=visiblePanels[currentSlide]?.idx;
+  if(activeIdx!==undefined){
+    document.querySelectorAll('.nav-tabs a').forEach(a=>{a.classList.toggle('active',parseInt(a.dataset.idx)===activeIdx);});
+  }
+}
+
+/* ═══ DATE HEADER ═══ */
+function updateDateHeader(){
+  const data=DATA_ARCHIVE[currentDate];
+  document.getElementById('heroMeta').textContent=`${currentDate.replace(/-/g,'.')} · ${data?data.weekday:''} · ${data?data.issue:''}`;
+  document.getElementById('dateSelectorText').textContent=currentDate===todayStr?'今天':currentDate.slice(5).replace('-','/');
+}
+
+/* ═══ SLIDE NAV ═══ */
+function goSlide(n,event){
+  if(event)event.preventDefault();
+  currentSlide=Math.max(0,Math.min(n,totalSlides-1));
+  renderCarousel();
+}
+
+function nextSlide(){
+  if(currentSlide<totalSlides-1){currentSlide++;renderCarousel();}
+  else{currentSlide=0;renderCarousel();}
+}
+
+function prevSlide(){
+  if(currentSlide>0){currentSlide--;renderCarousel();}
+  else{currentSlide=totalSlides-1;renderCarousel();}
+}
+
+/* ═══ DATE ═══ */
+function showDate(dateStr){
+  if(!DATA_ARCHIVE[dateStr])return;
+  currentDate=dateStr;
+  currentSlide=0;
+  searchQuery='';
+  document.getElementById('navSearchInput').value='';
+  updateDateHeader();
+  renderCarousel();
+  renderDateDropdown();
+  closeDateDropdown();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══ DATE DROPDOWN ═══ */
+function toggleDateDropdown(){document.getElementById('dateDropdown').classList.toggle('open');}
+function closeDateDropdown(){document.getElementById('dateDropdown').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#dateSelector'))closeDateDropdown();});
+
+/* ═══ SEARCH ═══ */
+function filterNews(q){
+  searchQuery=q;
+  currentSlide=0;
+  renderCarousel();
+}
+
+/* ═══ KEYBOARD ═══ */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowLeft')prevSlide();
+  if(e.key==='ArrowRight')nextSlide();
+});
+
+/* ═══ TOUCH/MOUSE SWIPE ═══ */
+let touchStartX=0;
+let isDragging=false;
+let dragStartX=0;
+const carouselTrack=document.getElementById('carouselTrack');
+
+// Touch swipe (mobile)
+carouselTrack?.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+carouselTrack?.addEventListener('touchend',e=>{
+  const diff=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(diff)>50){
+    if(diff<0)nextSlide();else prevSlide();
+  }
+},{passive:true});
+
+// Mouse drag swipe (desktop)
+carouselTrack?.addEventListener('mousedown',e=>{
+  isDragging=true;
+  dragStartX=e.clientX;
+  carouselTrack.style.cursor='grabbing';
+  e.preventDefault();
+});
+document.addEventListener('mousemove',e=>{
+  if(!isDragging)return;
+  e.preventDefault();
+});
+document.addEventListener('mouseup',e=>{
+  if(!isDragging)return;
+  isDragging=false;
+  carouselTrack.style.cursor='default';
+  const diff=e.clientX-dragStartX;
+  if(Math.abs(diff)>80){
+    if(diff<0)nextSlide();else prevSlide();
+  }
+});
+carouselTrack?.addEventListener('mouseleave',()=>{
+  if(isDragging){isDragging=false;carouselTrack.style.cursor='default';}
+});
+
+/* ═══ INIT ═══ */
+renderBrands();
+renderDateDropdown();
+updateDateHeader();
+renderCarousel();
+
+</script>
+</body>
+</html>
